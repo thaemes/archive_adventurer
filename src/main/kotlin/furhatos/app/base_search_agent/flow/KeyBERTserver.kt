@@ -70,24 +70,7 @@ class KeyBERTserver {
         return try {
             val stringList = mutableListOf<String>()
             var in_l = incoming
-            if (incoming != null) {
-                if (incoming.contains("bijzondere voertuigen")) {
-                    stringList.add("bijzondere voertuigen")
-                    in_l = incoming.replace(Regex("bijzondere voertuigen"), "")
-                }
-                if (incoming.contains("bijzondere vliegtuigen")) {
-                    stringList.add("bijzondere vliegtuigen")
-                    in_l = incoming.replace(Regex("bijzondere vliegtuigen"), "")
-                }
-                if (incoming.contains("jonge dieren")) {
-                    stringList.add("jonge dieren")
-                    in_l = incoming.replace(Regex("jonge dieren"), "")
-                }
-                if (incoming.contains("loven en bieden")){
-                    stringList.add("loven en bieden")
-                    in_l = incoming.replace(Regex("loven en bieden"), "")
-                }
-            }
+
             outputStream.println("${in_l}\n")
             println("*** Sent the words: ${incoming} to multi KeyBERT")
             val inp = JSONArray(reader.readLine())
@@ -95,33 +78,13 @@ class KeyBERTserver {
             for (i in 0 until inp.length()) {
                 val innerArray = inp.getJSONArray(i)
                 val string = innerArray.getString(0).toLowerCase()
-                if (string.toLowerCase().contains("naar")) continue
-                if (string.toLowerCase().contains("mij")) continue
-                if (string.toLowerCase().equals("en")) continue
-                //if (string.toLowerCase().equals("een")) continue
-                if (string.toLowerCase().equals("je")) continue
-                if (string.toLowerCase().contains("luchtvaart")) continue
-                if (string.toLowerCase().contains("filmpje") || string.toLowerCase().contains("filmpjes")) continue
-                if (string.toLowerCase().contains("heb") || string.toLowerCase().contains("hebben")) continue
-                if (string.toLowerCase().contains("opzoek") || string.toLowerCase().contains("opzoeken")) continue
-                if (string.toLowerCase().contains("zoek") || string.toLowerCase().contains("zoeken")) continue
-                if (string.toLowerCase().contains("robot") || string.toLowerCase().contains("robots")) continue
-                if (string.toLowerCase().contains("jaskier")) {
-                    stringList.add("skiën")
-                    continue
-                }
-                if (string.toLowerCase().contains("leeuw")) {
-                    stringList.add("leeuwen")
-                    println("leeuw hardoced")
-                    continue
-                }
-
-
                 val number = innerArray.getDouble(1)
+
                 if (number > KEYBERT_THRESHOLD && !(string.toLowerCase().equals("filmpjes"))) {
                     stringList.add(string)
                 }
             }
+
             println("*** KeyBert found: ${stringList}")
             stringList
         } catch (e: IOException) {

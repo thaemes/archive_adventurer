@@ -7,7 +7,7 @@ import org.json.JSONObject
 class StateTracker(var GTAA: String?, var label: String?)
 
 
-class KeywordCollection() {
+class KeywordCollection {
     var kws: MutableList<StateTracker> = mutableListOf()
     var kws_prev: MutableList<StateTracker> = mutableListOf()
     var set: JSONObject? = null

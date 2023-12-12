@@ -3,7 +3,6 @@ package furhatos.app.base_search_agent.flow
 import furhatos.app.base_search_agent.DataDelivery
 import furhatos.app.base_search_agent.PORT
 import furhatos.app.base_search_agent.SPEECH_DONE
-import furhatos.app.base_search_agent.nlu.Number
 import furhatos.event.senses.SenseSkillGUIConnected
 import furhatos.flow.kotlin.*
 import furhatos.flow.kotlin.voice.Voice
@@ -14,6 +13,8 @@ import furhatos.util.Language
 
 val GUI = HostedGUI("ExampleGUI", "assets/exampleGui", PORT)
 val kbserv = KeyBERTserver()
+val matchServ = MatchingServer()
+
 
 val Init: State = state(null) {
     onEntry {
@@ -23,10 +24,10 @@ val Init: State = state(null) {
             //rate = 1.65
         )
         //furhat.setVoice(v)
+        matchServ.connect()
         furhat.setInputLanguage(Language.DUTCH)
         furhat.param.noSpeechTimeout = 12000
         furhat.param.endSilTimeout = 2000
-        kbserv.startKeyBERTServer()
     }
     onReentry {
     }
@@ -54,47 +55,16 @@ val Init: State = state(null) {
     onButton("Start logger", color = Color.Yellow) {
         dialogLogger.startSession()
     }
-    onButton("Stop logger"){
+    onButton("Stop logger") {
         dialogLogger.endSession()
     }
 
-    onButton("start PROCESSBUILDER KeyBERT server", color = Color.Red, section = Section.RIGHT) {
-        kbserv.startKeyBERTServer()
-    }
-    onButton("connect to KeyBERT server", color = Color.Red, section = Section.RIGHT) {
-        kbserv.connectKeyBERTServer()
-    }
-
-    onButton("test KeyBERT server connection", color = Color.Red, section = Section.RIGHT) {
-        val a = kbserv.keyBERTExtract("ik leef")
-        println(a.toString())
-        if(a!= null) furhat.say("Ik ben verbonden!")
-    }
-
-    onButton("close KeyBERT socket and server", color = Color.Red, section = Section.RIGHT) {
-        kbserv.disconnectKeyBERTServer()
-    }
-
-    /*onButton("test Narrower", color = Color.Yellow) {
-        println(isNarrower("28912", "28684"))
-    }
-
-    onButton("test double matching") {
-        println(extractGTAAMulti2(listOf(getGTAAPartial("verkeerspoli")))?.get(0)?.GTAA)
-    }
-    */
-}
-
-/*
-val numtester: State = state(Init) {
-    onEntry {
-        furhat.listen()
-    }
-    onResponse<Number> {
-        println(it.intent.value)
+    onButton("Test new matching server") {
+        matchServ.connect()
+        matchServ.extract("pony park slagharen")
+//        matchServ.close()
     }
 }
-*/
 
 
 val NoGUI: State = state(null) {

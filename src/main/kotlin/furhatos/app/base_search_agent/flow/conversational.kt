@@ -8,6 +8,11 @@ import furhatos.flow.kotlin.onResponse
 import furhatos.flow.kotlin.state
 import furhatos.gestures.Gestures
 import org.json.JSONObject
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+
 
 var currentSet = KeywordCollection()
 
@@ -22,7 +27,7 @@ fun conversationalPrompt(): State = state(Init) {
         } else {
             if (currentSet.kws == currentSet.kws_prev) {
                 currentSet.suggestionCounter++
-                if (currentSet.suggestionCounter >= 2) goto(askSuggest())
+                if (currentSet.suggestionCounter >= 1) goto(askSuggest())
                 println(currentSet.suggestionCounter)
             }
             furhat.ask("wat lijken je verder interessanten onderwerpen in een filmpje over ${currentSet.getHumanReadableLabels()}?")
@@ -48,15 +53,13 @@ fun conversationalPrompt(): State = state(Init) {
     }
 
     this.onResponse {
-        var newKW = kbserv.keyBERTExtractMulti(it.text.toLowerCase())
-        var gtaa = extractGTAAMulti2(getGTAAMulti2(newKW))
-        currentSet.kws_prev = currentSet.kws.toList().toMutableList()
+        currentSet.kws_prev = currentSet.kws//.toList().toMutableList()
 
-        gtaa?.forEach { item ->
-            if (item != null) currentSet.kws.add(item)
-        }
+        var newKWs = matchServ.extract(it.text.lowercase())
+        currentSet.loadDataFromJson(newKWs)
 
-        if (gtaa?.size == 0) {
+
+        if (currentSet.kws.size == 0) {
             furhat.say("ik verstond <break time=\"0.5s\"/> ${it.text}")
             furhat.say("Daar zitten geen onderwerpen in die ik kenn")
             if(currentSet.cameFromSuggestion) goto(askSuggest(same = true))

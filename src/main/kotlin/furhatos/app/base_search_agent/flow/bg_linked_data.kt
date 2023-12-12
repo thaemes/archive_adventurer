@@ -1,7 +1,7 @@
 package furhatos.app.base_search_agent.flow
 
 import furhatos.app.base_search_agent.bg_kg_url
-import furhatos.app.base_search_agent.nlu.StateTracker
+import furhatos.app.base_search_agent.nlu.thesaurusKeyword
 import furhatos.app.base_search_agent.nlu.pluralize
 import khttp.post
 import org.json.JSONObject
@@ -33,9 +33,9 @@ fun searchLinkedAPIMulti(gtaas: List<String?>): JSONObject? {
     val resultJson: JSONObject
     var query = sparqlFilterVideos(gtaas)
 
-    print("\n\nQuery:"+query+"\n\n")
+    //print("\n\nQuery:"+query+"\n\n")
 
-    if (gtaas == null || gtaas.all { it == null || it?.isBlank() }) {
+    if (gtaas == null || gtaas.all { it == null || it?.isBlank()!! }) {
         println("NULL")
         return null
     }
@@ -84,7 +84,7 @@ fun getGTAAMulti2(input: List<String>?): List<Pair<String?, JSONObject?>>? {
     val results: MutableList<Pair<String, JSONObject?>> = mutableListOf()
 
     if (input != null) {
-        for (i in 0 until input?.size) {
+        for (i in 0 until input?.size!!) {
             if (input[i].toLowerCase() == "naar") {
                 println("NAAAR")
                 continue
@@ -125,9 +125,9 @@ fun getGTAAPartial(input: String?): Pair<String?, JSONObject?> {
 }
 
 
-fun extractGTAAMulti2(res: List<Pair<String?, JSONObject?>>?): List<StateTracker?>? {
+fun extractGTAAMulti2(res: List<Pair<String?, JSONObject?>>?): List<thesaurusKeyword?>? {
     if (res == null) return null
-    var results: MutableList<StateTracker?> = mutableListOf()
+    var results: MutableList<thesaurusKeyword?> = mutableListOf()
 
     for (i in 0 until res.size) {
         try {
@@ -136,7 +136,7 @@ fun extractGTAAMulti2(res: List<Pair<String?, JSONObject?>>?): List<StateTracker
                 ?.getString("value")?.substringAfterLast("/")
             println("... Succesfully extracted a GTAA: ${out}")
             println("... result:" + res[i].toString())
-            results.add(StateTracker(out, res[i].first))
+            results.add(thesaurusKeyword(out, res[i].first, 0.0), )
         } catch (e: Exception) {
             println("... JSON extraction of one GTAA Failed")
         }

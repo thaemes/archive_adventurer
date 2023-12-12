@@ -46,7 +46,7 @@ fun pluralize(input: String?): String? {
         println("### skiën hardcode reached")
         return "skiën"
     }
-    if (input.toLowerCase().equals("mode")){
+    if (input.lowercase().equals("mode")){
         return "mode"
     }
     if (input.toLowerCase().equals("kleding")){

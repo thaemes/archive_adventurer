@@ -9,9 +9,12 @@ const val SPEECH_DONE = "SpeechDone"
 const val KEYBERT_THRESHOLD = 0.4
 
 // Keybert server data
-const val KEYBERTPORT = 12223
+const val KEYBERTPORT = 12222
 const val KEYBERTIP = "localhost"
 
+
+const val MATCHING_SERVER_IP = "127.0.0.1"
+const val MATCHING_SERVER_PORT = 12223
 
 // BEELD & GELUID Config
 const val bg_kg_url = "https://cat.apis.beeldengeluid.nl/sparql/"

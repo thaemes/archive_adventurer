@@ -3,7 +3,7 @@ package furhatos.app.base_search_agent.flow
 import furhatos.app.base_search_agent.KEYBERTIP
 import furhatos.app.base_search_agent.KEYBERTPORT
 import furhatos.app.base_search_agent.KEYBERT_THRESHOLD
-import org.json.JSONArray
+//import org.json.JSONArray
 import java.io.*
 import java.net.ConnectException
 import java.net.Socket
@@ -52,7 +52,7 @@ class KeyBERTserver {
         return try {
             outputStream.println("${inp}\n")
             println("*** Sent the words to KeyBERT")
-            val inp = JSONArray(reader.readLine())
+            val inp = org.json.JSONArray(reader.readLine())
             println("*** KeyBert found: " + inp.getJSONArray(0).getString(0))
 
             inp.getJSONArray(0).getString(0).toLowerCase()
@@ -73,7 +73,7 @@ class KeyBERTserver {
 
             outputStream.println("${in_l}\n")
             println("*** Sent the words: ${incoming} to multi KeyBERT")
-            val inp = JSONArray(reader.readLine())
+            val inp = org.json.JSONArray(reader.readLine())
 
             for (i in 0 until inp.length()) {
                 val innerArray = inp.getJSONArray(i)

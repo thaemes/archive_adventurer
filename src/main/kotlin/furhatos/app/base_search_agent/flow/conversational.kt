@@ -102,7 +102,7 @@ fun askSuggest(same : Boolean = false): State = state(Init) {
                     ?: emptyList()
             val sortedMap = groupedByCount?.toList()?.sortedByDescending { (_, count) -> count }?.toMap()
 
-            println("\n*** The most frequently occurring topics with their counts are:")
+            println("\n*** The most frequently occurring topics with their counts are (subset):")
             if (sortedMap != null) {
                 sortedMap.entries.take(5).forEach { (word, count) -> println("   $word: $count") }
             }

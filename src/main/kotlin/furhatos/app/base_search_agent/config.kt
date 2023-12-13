@@ -24,7 +24,9 @@ class DataDelivery(
     val video : List<String>
 ) : Event()
 
-
+class ChatLogDataDelivery(
+    val log : List<String>
+) : Event()
 
 
 

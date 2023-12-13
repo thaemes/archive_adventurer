@@ -38,7 +38,7 @@ class MatchingServer {
         try {
             // Read response from the server
             val rec = reader.readLine() ?: ""
-
+            println("received from server: "+rec)
             if (rec.isNotEmpty()) {
                 println("Received response: $rec")
                 return rec

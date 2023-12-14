@@ -24,12 +24,16 @@ class DataDelivery(
     val video : List<String>
 ) : Event()
 
-class ChatLogDataDelivery(
-    val log : List<String>
+
+
+class MyCustomEvent(
+    var param1 : String? = null
 ) : Event()
 
+// Declare event with a custom name - "MyOtherCustomEvent"
+class MyOtherCustomEvent(
+    var param1 : String? = null
+) : Event("MyOtherCustomEvent")
 
-
-
-
+// Send the event (inside a state)
 

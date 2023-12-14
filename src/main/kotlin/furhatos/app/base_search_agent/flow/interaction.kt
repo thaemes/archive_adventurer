@@ -3,6 +3,7 @@ package furhatos.app.base_search_agent.flow
 import furhatos.app.base_search_agent.DataDelivery
 import furhatos.app.base_search_agent.PORT
 import furhatos.app.base_search_agent.SPEECH_DONE
+import furhatos.app.base_search_agent.MyCustomEvent
 import furhatos.event.senses.SenseSkillGUIConnected
 import furhatos.flow.kotlin.*
 import furhatos.flow.kotlin.voice.Voice
@@ -12,6 +13,10 @@ import furhatos.util.Language
 
 
 val GUI = HostedGUI("ExampleGUI", "assets/exampleGui", PORT)
+//val GUI2 = HostedGUI("custom", "assets/gui2/src", 9091)
+//val GUI = HostedGUI("ExampleGUI", "assets/gui3", PORT)
+
+
 val kbserv = KeyBERTserver()
 val matchServ = MatchingServer()
 
@@ -60,10 +65,22 @@ val Init: State = state(null) {
     }
 
     onButton("Test new matching server") {
-        matchServ.connect()
-        matchServ.extract("pony park slagharen")
-//        matchServ.close()
+        matchServ.extract("pony's")
     }
+
+//    onEvent("MyEvent") {
+//        println(it.get("param1")) // "paramValue" or "null" if param1 is not set
+//    }
+//
+//    onEvent("ClickButton") {
+//        println(it.get("param2") ?: "baz") // "bar" or "baz" depending on if param2 is set
+//    }
+//
+//    onButton("hi"){
+//        send(MyCustomEvent("Some string"))
+//    }
+
+
 }
 
 
@@ -90,5 +107,5 @@ fun watchVideo(link: String?) = state(Init) {
         }
         terminate()
     }
-
 }
+

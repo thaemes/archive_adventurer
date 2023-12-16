@@ -12,7 +12,7 @@ import furhatos.util.Gender
 import furhatos.util.Language
 
 
-val GUI = HostedGUI("ExampleGUI", "assets/exampleGui", PORT)
+//val GUI = HostedGUI("ExampleGUI", "assets/exampleGui", PORT)
 val kbserv = KeyBERTserver()
 
 val Init: State = state(null) {

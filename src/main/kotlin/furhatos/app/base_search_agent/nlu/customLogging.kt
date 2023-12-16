@@ -9,16 +9,23 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 class CustomLogger {
-    val messagesLogArray = JSONArray()
+    private var messagesLogArray = JSONArray()
     private var counter = 1
-    fun customSay(input: String): State = state(Init) {
+
+
+    fun reset(): State = state(Init) {
         onEntry {
-            addLog("robot", input)
-            furhat.say(input)
+            messagesLogArray = JSONArray()
             terminate()
         }
     }
-
+    fun customSay(text: String): State = state(Init) {
+        onEntry {
+            call(addLog("robot", text))
+            furhat.say(text)
+            terminate()
+        }
+    }
 
     fun customListen(prompt: String): State = state(Init) {
         onEntry {
@@ -31,10 +38,17 @@ class CustomLogger {
     fun customAsk(prompt: String): State = state(Init) {
         onEntry {
             call(addLog(who = "robot", text = prompt))
-            println("IN THE FUCKING CUSTOM ASSSK")
             furhat.ask(prompt)
             terminate()
         }
+    }
+
+    fun customResponse(text: String): State = state(Init){
+        onEntry{
+            call(addLog("kid", text))
+            terminate()
+        }
+
     }
 
     fun addLog(who: String, text: String): State = state(Init) {
@@ -42,7 +56,7 @@ class CustomLogger {
             val currentTime = LocalTime.now()
             val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
             val formattedTime = currentTime.format(formatter)
-            println("IN THE FUCKING CUSTOM ADDLOG")
+
             val message = JSONObject().apply {
                 put("who", who)
                 put("id", counter)

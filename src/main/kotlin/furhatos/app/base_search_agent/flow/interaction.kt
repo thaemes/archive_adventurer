@@ -74,6 +74,7 @@ val Init: State = state(GUIConnected) {
 
     onButton("Reset current set conversational", color = Color.Green) {
         currentSet.reset()
+        call(cl.reset())
     }
 
     onButton("Start logger", color = Color.Yellow) {

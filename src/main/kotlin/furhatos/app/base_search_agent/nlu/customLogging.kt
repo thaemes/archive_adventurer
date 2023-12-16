@@ -15,6 +15,7 @@ class CustomLogger {
         onEntry {
             addLog("robot", input)
             furhat.say(input)
+            terminate()
         }
     }
 

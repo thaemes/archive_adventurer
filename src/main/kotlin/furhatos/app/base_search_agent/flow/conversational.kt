@@ -40,7 +40,7 @@ fun conversationalPrompt(): State = state(Init) {
         call(cl.addLog(who = "kid", it.text))
         println("came back!!!!!!!!!!!!!")
         furhat.gesture(Gestures.Smile)
-        furhat.say("oh, oke!")
+        cl.customSay("oh, oke!")
         goto(askSuggest())
     }
 
@@ -49,7 +49,7 @@ fun conversationalPrompt(): State = state(Init) {
     }
 
     this.onResponse<Nee> {
-        furhat.say("oh jammer")
+        cl.customSay("oh jammer")
         if (currentSet.cameFromSuggestion) {
             currentSet.suggestionCounter = 2
         }
@@ -64,8 +64,8 @@ fun conversationalPrompt(): State = state(Init) {
 
 
         if (currentSet.kws.size == 0) {
-            furhat.say("ik verstond <break time=\"0.5s\"/> ${it.text}")
-            furhat.say("Daar zitten geen onderwerpen in die ik kenn")
+            cl.customSay("ik verstond <break time=\"0.5s\"/> ${it.text}")
+            cl.customSay("Daar zitten geen onderwerpen in die ik kenn")
             if(currentSet.cameFromSuggestion) goto(askSuggest(same = true))
             else goto(conversationalPrompt())
         }
@@ -78,7 +78,7 @@ fun conversationalPrompt(): State = state(Init) {
         println("@@@ Found ${len} video results")
         if (len == 0) goto(conversationalResult())
         else if (len!! <= 3) goto(conversationalResult())
-        furhat.say("ik heb ${getQuantifyWord(len)} filmpjes over ${currentSet.getHumanReadableLabels()}")
+        cl.customSay("ik heb ${getQuantifyWord(len)} filmpjes over ${currentSet.getHumanReadableLabels()}")
         goto(conversationalPrompt())
     }
 
@@ -120,7 +120,7 @@ fun askSuggest(same : Boolean = false): State = state(Init) {
             sortedList = currentSet.suggestedLastTurn
         }
 
-        furhat.say(
+        cl.customSay(
              "Ik heb wel een suggestie. "//<break time=\"0.3s\"/>"
             +"De filmpjes over ${currentSet.getHumanReadableLabels()}, gaan verder over bijvoorbeeld ${
                 concatStrings(sortedList)
@@ -136,23 +136,23 @@ fun conversationalResult(): State = state(Init) {
         when (val numberVideos = currentSet.getSetSize()) {
             0, null -> {
                 if (currentSet.getHumanReadableLabels() == null || currentSet.getHumanReadableLabels() == "") {
-                    furhat.say("ik heb helaas geen filmpjes gevonden")
+                    cl.customSay("ik heb helaas geen filmpjes gevonden")
                 } else {
-                    furhat.say("ik heb helaas geen filmpjes gevonden over ${currentSet.getHumanReadableLabels()}")
+                    cl.customSay("ik heb helaas geen filmpjes gevonden over ${currentSet.getHumanReadableLabels()}")
                 }
                 currentSet.stepBack()
-                furhat.say("Ik doe even een stapje terug")
+                cl.customSay("Ik doe even een stapje terug")
                 currentSet.cameFromSuggestion = false
                 goto(conversationalPrompt())
             }
             1 -> {
-                furhat.say("ik heb 1 filmpje over ${currentSet.getHumanReadableLabels()}")
-                furhat.say("het filmpje heet ${currentSet.getSetVideos()?.map { it?.title }}")
+                cl.customSay("ik heb 1 filmpje over ${currentSet.getHumanReadableLabels()}")
+                cl.customSay("het filmpje heet ${currentSet.getSetVideos()?.map { it?.title }}")
                 goto(askToWatch())
             }
             else -> {
-                furhat.say("ik heb ${numberVideos} filmpjes over ${currentSet.getHumanReadableLabels()}.")
-                furhat.say("de filmpjes heten ${concatStrings(currentSet.getSetVideos()?.map { it?.title })}.")
+                cl.customSay("ik heb ${numberVideos} filmpjes over ${currentSet.getHumanReadableLabels()}.")
+                cl.customSay("de filmpjes heten ${concatStrings(currentSet.getSetVideos()?.map { it?.title })}.")
                 goto(askToWatch())
             }
         }
@@ -165,7 +165,7 @@ fun askToWatch(): State = state(Init) {
         call(cl.customAsk("welk filmpje wil je zien? "))
     }
     onResponse<Number> {
-        furhat.say("oke, leuk! ")
+        cl.customSay("oke, leuk! ")
         val number: Int
         number = when (it.intent.value?.toInt()) {
             -2 -> (currentSet.getSetSize()?.toInt()?.minus(2)!!)
@@ -180,7 +180,7 @@ fun askToWatch(): State = state(Init) {
     }
 
     onResponse<Nee> {
-        furhat.say("oh jammer. Ik doe een stapje terug")
+        cl.customSay("oh jammer. Ik doe een stapje terug")
         currentSet.stepBack()
         goto(conversationalPrompt())
     }
@@ -191,13 +191,13 @@ fun askToWatch(): State = state(Init) {
 
         titleList?.forEachIndexed { index, title ->
             if (title?.let { wd.toLowerCase() in it.toLowerCase() } == true) {
-                furhat.say("Oke leuk!")
+                cl.customSay("Oke leuk!")
                 println("about to watch: " + currentSet.getSetVideos()?.get(index)?.title)
                 call(watchVideo(currentSet.getSetVideos()?.get(index)?.link))
                 goto(Init)
             }
             else {
-                furhat.say("ik heb je niet begrepen.")
+                cl.customSay("ik heb je niet begrepen.")
                 if(currentSet.getSetSize() == 1) goto(askToWatch())
                 else goto(conversationalPrompt())
             }

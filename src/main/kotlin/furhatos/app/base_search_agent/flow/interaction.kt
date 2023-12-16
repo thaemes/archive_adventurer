@@ -88,8 +88,8 @@ val Init: State = state(GUIConnected) {
     }
 
     onButton("Dump log") {
-        println(cl.messagesLogArray.toString())
-        send(DataDelivery(buttons = null, inputFields = null, messagesLog = listOf(cl.messagesLogArray.toString()), videoUrl = null ))
+        println(cl.getLog())
+        send(DataDelivery(buttons = null, inputFields = null, messagesLog = listOf(cl.getLog()), videoUrl = null ))
         println("sent!")
     }
 

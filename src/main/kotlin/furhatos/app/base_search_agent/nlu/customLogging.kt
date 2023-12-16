@@ -17,7 +17,8 @@ class CustomLogger {
             furhat.say(input)
         }
     }
-    
+
+
     fun customListen(prompt: String): State = state(Init) {
         onEntry {
             call(addLog(who = "robot", prompt))
@@ -43,18 +44,26 @@ class CustomLogger {
             println("IN THE FUCKING CUSTOM ADDLOG")
             val message = JSONObject().apply {
                 put("who", who)
-                put("messageID", counter)
+                put("id", counter)
                 put("text", text)
-                put("emojiID", "\uD83D\uDE0D")
+                put("emojiId", "\uD83D\uDE0D")
                 put("startTime", formattedTime)
             }
             println("about to add: "+ message.toString())
             messagesLogArray.put(message)
             counter++
-
             terminate()
         }
     }
+
+    fun getLog() : String {
+       val messagesJson = JSONObject().apply {
+           put("messages", messagesLogArray)
+       }
+        return messagesJson.toString()
+    }
+
+
 
 }
 

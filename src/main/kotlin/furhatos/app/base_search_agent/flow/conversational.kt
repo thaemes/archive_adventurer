@@ -21,7 +21,7 @@ var cl = CustomLogger()
 
 fun conversationalPrompt(): State = state(Init) {
     onEntry {
-        if (currentSet.kws.size == 0) call(cl.customAsk("waar zal ik naar zoeken"))//furhat.ask("waar zal ik naar zoeken?")
+        if (currentSet.kws.size == 0) call(cl.customAsk("waar zal ik naar zoeken?"))//furhat.ask("waar zal ik naar zoeken?")
         else if (currentSet?.getSetSize() != 0 && currentSet.getSetSize()!! <= 3) goto(conversationalResult())
         else if (currentSet.cameFromSuggestion) {
             call(cl.customAsk("Zit daar een onderwerp tussen dat je interessant lijkt? Zo ja welke?"))

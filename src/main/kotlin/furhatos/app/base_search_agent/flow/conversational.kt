@@ -1,5 +1,6 @@
 package furhatos.app.base_search_agent.flow
 
+import furhatos.app.base_search_agent.CustomLogger
 import furhatos.app.base_search_agent.nlu.*
 import furhatos.app.base_search_agent.nlu.Number
 import furhatos.flow.kotlin.State
@@ -12,17 +13,18 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-
+//import furhatos.app.base_search_agent.nlu.customLogging
 
 var currentSet = KeywordCollection()
+var cl = CustomLogger()
+
 
 fun conversationalPrompt(): State = state(Init) {
     onEntry {
-
-        if (currentSet.kws.size == 0) furhat.ask("waar zal ik naar zoeken?")
+        if (currentSet.kws.size == 0) call(cl.customAsk("waar zal ik naar zoeken"))//furhat.ask("waar zal ik naar zoeken?")
         else if (currentSet?.getSetSize() != 0 && currentSet.getSetSize()!! <= 3) goto(conversationalResult())
         else if (currentSet.cameFromSuggestion) {
-            furhat.ask("Zit daar een onderwerp tussen dat je interessant lijkt? Zo ja welke?")
+            call(cl.customAsk("Zit daar een onderwerp tussen dat je interessant lijkt? Zo ja welke?"))
             //currentSet.cameFromSuggestion = false
         } else {
             if (currentSet.kws == currentSet.kws_prev) {
@@ -30,11 +32,13 @@ fun conversationalPrompt(): State = state(Init) {
                 if (currentSet.suggestionCounter >= 1) goto(askSuggest())
                 println(currentSet.suggestionCounter)
             }
-            furhat.ask("wat lijken je verder interessanten onderwerpen in een filmpje over ${currentSet.getHumanReadableLabels()}?")
+            call(cl.customAsk("wat lijken je verder interessanten onderwerpen in een filmpje over ${currentSet.getHumanReadableLabels()}?"))
         }
     }
 
     this.onResponse<doNotKnow> {
+        call(cl.addLog(who = "kid", it.text))
+        println("came back!!!!!!!!!!!!!")
         furhat.gesture(Gestures.Smile)
         furhat.say("oh, oke!")
         goto(askSuggest())
@@ -157,8 +161,8 @@ fun conversationalResult(): State = state(Init) {
 
 fun askToWatch(): State = state(Init) {
     onEntry {
-        if (currentSet.getSetSize() == 1) furhat.ask("wil je die zien?")
-        furhat.ask("welk filmpje wil je zien? ")
+        if (currentSet.getSetSize() == 1) call(cl.customAsk("wil je die zien?"))
+        call(cl.customAsk("welk filmpje wil je zien? "))
     }
     onResponse<Number> {
         furhat.say("oke, leuk! ")

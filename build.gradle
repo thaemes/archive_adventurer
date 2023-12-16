@@ -48,20 +48,14 @@ repositories {
 
 
 dependencies {
-    compile 'com.furhatrobotics.furhatos:furhat-commons:2.7.0'
-    compile 'khttp:khttp:0.1.0'
+    implementation 'com.furhatrobotics.furhatos:furhat-commons:2.7.2'
+    implementation 'khttp:khttp:0.1.0'
     //implementation 'org.json:json:20210307' // Use the latest version available
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.1.15"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-common"
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
-
-    //compile 'org.xerial:sqlite-jdbc:3.36.0.3'
-    //compile 'khttp:khttp:0.1.0'
-    //implementation 'com.google.code.gson:gson:2.9.1'
-    //implementation 'com.beust:klaxon:5.5'
     implementation(files('SimpleNLG-NL-1.1.jar'))
 }
-
 
 jar {
     def lowerCasedName = baseName.toLowerCase()

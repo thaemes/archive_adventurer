@@ -21,19 +21,8 @@ const val bg_kg_url = "https://cat.apis.beeldengeluid.nl/sparql/"
 
 // Event used to pass data to GUI
 class DataDelivery(
-    val video : List<String>
+    val buttons : List<String>?,
+    val inputFields: List<String>?,
+    val messagesLog: List<String>?,
+    val videoUrl: List<String>?
 ) : Event()
-
-
-
-class MyCustomEvent(
-    var param1 : String? = null
-) : Event()
-
-// Declare event with a custom name - "MyOtherCustomEvent"
-class MyOtherCustomEvent(
-    var param1 : String? = null
-) : Event("MyOtherCustomEvent")
-
-// Send the event (inside a state)
-

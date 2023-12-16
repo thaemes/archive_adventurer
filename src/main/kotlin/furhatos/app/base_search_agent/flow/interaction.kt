@@ -3,7 +3,6 @@ package furhatos.app.base_search_agent.flow
 import furhatos.app.base_search_agent.DataDelivery
 import furhatos.app.base_search_agent.PORT
 import furhatos.app.base_search_agent.SPEECH_DONE
-import furhatos.app.base_search_agent.MyCustomEvent
 import furhatos.event.senses.SenseSkillGUIConnected
 import furhatos.flow.kotlin.*
 import furhatos.flow.kotlin.voice.Voice
@@ -12,7 +11,7 @@ import furhatos.util.Gender
 import furhatos.util.Language
 
 
-val GUI = HostedGUI("ExampleGUI", "assets/exampleGui", PORT)
+val GUI = HostedGUI("gui3", "assets/gui3", PORT)
 //val GUI2 = HostedGUI("custom", "assets/gui2/src", 9091)
 //val GUI = HostedGUI("ExampleGUI", "assets/gui3", PORT)
 
@@ -28,7 +27,7 @@ val Init: State = state(null) {
             rate = 1.0
             //rate = 1.65
         )
-        //furhat.setVoice(v)
+        furhat.setVoice(v)
         matchServ.connect()
         furhat.setInputLanguage(Language.DUTCH)
         furhat.param.noSpeechTimeout = 12000
@@ -68,17 +67,12 @@ val Init: State = state(null) {
         matchServ.extract("pony's")
     }
 
-//    onEvent("MyEvent") {
-//        println(it.get("param1")) // "paramValue" or "null" if param1 is not set
-//    }
-//
-//    onEvent("ClickButton") {
-//        println(it.get("param2") ?: "baz") // "bar" or "baz" depending on if param2 is set
-//    }
-//
-//    onButton("hi"){
-//        send(MyCustomEvent("Some string"))
-//    }
+    onButton("Dump log") {
+        println(cl.messagesLogArray.toString())
+        send(DataDelivery(buttons = null, inputFields = null, messagesLog = listOf(cl.messagesLogArray.toString()), videoUrl = null ))
+        println("sent!")
+    }
+
 
 
 }
@@ -102,7 +96,7 @@ fun watchVideo(link: String?) = state(Init) {
             exit()
         } else {
             println("%%% Rec'd. video link: $link")
-            send(DataDelivery(video = listOf(link)))
+            send(DataDelivery(buttons= null, inputFields=null, messagesLog = null, videoUrl = listOf(link)))
             send(SPEECH_DONE)
         }
         terminate()

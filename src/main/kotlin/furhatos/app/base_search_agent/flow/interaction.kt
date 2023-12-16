@@ -9,18 +9,38 @@ import furhatos.flow.kotlin.voice.Voice
 import furhatos.skills.HostedGUI
 import furhatos.util.Gender
 import furhatos.util.Language
+import org.json.JSONArray
+import org.json.JSONObject
+import furhatos.flow.kotlin.*
+import furhatos.records.Record
 
 
-val GUI = HostedGUI("gui3", "assets/gui3", PORT)
-//val GUI2 = HostedGUI("custom", "assets/gui2/src", 9091)
-//val GUI = HostedGUI("ExampleGUI", "assets/gui3", PORT)
 
+val GUI2 = HostedGUI("Gui2", "assets/gui2b", 1313)
+val VARIABLE_SET = "VariableSet"
+val CLICK_BUTTON = "ClickButton"
 
 val kbserv = KeyBERTserver()
 val matchServ = MatchingServer()
 
 
-val Init: State = state(null) {
+// Starting state, before our GUI has connected.
+val NoGUI: State = state(null) {
+    onEvent<SenseSkillGUIConnected> {
+        goto(GUIConnected)
+    }
+}
+
+val GUIConnected = state(NoGUI) {
+    onEntry {
+        // Pass data to GUI
+        println("A GUI connected")
+        goto(Init)
+    }
+}
+
+
+val Init: State = state(GUIConnected) {
     onEntry {
         val v = Voice(
             gender = Gender.MALE, language = Language.DUTCH,
@@ -73,21 +93,42 @@ val Init: State = state(null) {
         println("sent!")
     }
 
+    onButton("Trigger reactmode") {
+        val messagesArray = JSONArray()
+
+        // Example message
+        val message1 = JSONObject().apply {
+            put("id", "message1")
+            put("text", "Hallo, ik zoeken?")
+            put("emojiId", "reaction1")
+            put("who", "robot")
+        }
+        val message2 = JSONObject().apply {
+            put("id", "message3")
+            put("text", "Ik zoeken weet niet man. ")
+            put("emojiId", "reaction1")
+            put("who", "kid")
+        }
+
+        val messagesJson = JSONObject().apply {
+            put("messages", messagesArray)
+        }
+
+        // Add the message to the array
+        messagesArray.put(message1)
+        messagesArray.put(message2)
 
 
-}
+        send(DataDelivery(buttons = null, inputFields = null, messagesLog = listOf(messagesJson.toString()), videoUrl = null))
+        println("sent: "+ messagesJson)
+    }
 
+    onButton("Trigger videoMode"){
+        send(DataDelivery(buttons=null, inputFields = null, messagesLog = null, videoUrl= listOf("https://www.openbeelden.nl/files/12/36/1236793.WEEKNUMMER322-HRE0001DB16_2601000_2704960.mp4")))
 
-val NoGUI: State = state(null) {
-    onEvent<SenseSkillGUIConnected> {
-        println("*** a gui connected")
-        goto(GUIConnected)
     }
 }
 
-val GUIConnected: State = state(NoGUI) {
-    println("GUI has connected")
-}
 
 fun watchVideo(link: String?) = state(Init) {
     onEntry {

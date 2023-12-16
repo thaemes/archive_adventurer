@@ -1,13 +1,14 @@
 package furhatos.app.base_search_agent
 
 import furhatos.app.base_search_agent.flow.Init
+import furhatos.app.base_search_agent.flow.NoGUI
 import furhatos.app.base_search_agent.flow.kbserv
 import furhatos.flow.kotlin.Flow
 import furhatos.skills.Skill
 
 class Base_search_agentSkill : Skill() {
     override fun start() {
-        Flow().run(Init)
+        Flow().run(NoGUI)
     }
 }
 

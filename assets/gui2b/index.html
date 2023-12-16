@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="src/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
+    <script type="text/javascript" src="dist/bundle.js"></script>
+    <link rel="icon" type="image/x-icon" href="/src/rb.png" />
+    <title>Robot chat!</title>
+</head>
+
+<body>
+
+<div id="chatContainer">
+
+</div>
+
+
+<div id="emojiPicker" class="emojiPicker">
+    <div class="emojiContainer">
+        <span class="emoji" data-emoji="😀" onclick="selectEmoji('😀')">😀</span>
+        <span class="emoji" data-emoji="😂" onclick="selectEmoji('😂')">😂</span>
+        <span class="emoji" data-emoji="😊" onclick="selectEmoji('😊')">😊</span>
+        <span class="emoji" data-emoji="😎" onclick="selectEmoji('😎')">😎</span>
+        <span class="emoji" data-emoji="😜" onclick="selectEmoji('😜')">😜</span>
+        <span class="emoji" data-emoji="😍" onclick="selectEmoji('😍')">😍</span>
+        <span class="emoji" data-emoji="😘" onclick="selectEmoji('😘')">😘</span>
+        <span class="emoji" data-emoji="🥳" onclick="selectEmoji('🥳')">🥳</span>
+        <span class="emoji" data-emoji="👍" onclick="selectEmoji('👍')">👍</span>
+        <span class="emoji" data-emoji="👎" onclick="selectEmoji('👎')">👎</span>
+    </div>
+
+    <input type="text" id="additionalTextField" placeholder="Voeg toe wat je er van vond!" ><br>
+    <!--    <span class="clear-button" id="clear-button">&#10006;</span>-->
+    <button id="removeButton">Verwijder reactie</button>
+    <button id="closeButton" >Klaar</button>
+</div>
+
+<div id="videoContainer">
+</div>
+
+
+
+</body>
+
+</html>

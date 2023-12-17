@@ -2,64 +2,92 @@ package furhatos.app.base_search_agent.flow
 
 import furhatos.app.base_search_agent.MATCHING_SERVER_IP
 import furhatos.app.base_search_agent.MATCHING_SERVER_PORT
+import furhatos.flow.kotlin.Flow
+import furhatos.flow.kotlin.Furhat
+import furhatos.flow.kotlin.State
+import furhatos.flow.kotlin.state
 import java.io.*
 import java.net.Socket
 
 
 class MatchingServer {
+    lateinit var socket: Socket
+    lateinit var writer: BufferedWriter
+    lateinit var reader: BufferedReader
 
-    private lateinit var socket: Socket
-    private lateinit var writer: BufferedWriter
-    private lateinit var reader: BufferedReader
-
-    fun connect() {
+    fun close() {
         try {
-            socket = Socket(MATCHING_SERVER_IP, MATCHING_SERVER_PORT)
-            writer = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
-            reader = BufferedReader(InputStreamReader(socket.getInputStream()))
+            matchServ.writer.close()
+            matchServ.reader.close()
+            matchServ.socket.close()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
+}
 
-    fun extract(incoming: String?): String {
+
+fun connectMatchServ(): State = state(Init) {
+    onEntry {
+        try {
+            matchServ.socket = Socket(MATCHING_SERVER_IP, MATCHING_SERVER_PORT)
+            matchServ.writer = BufferedWriter(OutputStreamWriter(matchServ.socket.getOutputStream()))
+            matchServ.reader = BufferedReader(InputStreamReader(matchServ.socket.getInputStream()))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+}
+
+fun extractMatchServ(incoming: String?): State = state(Init) {
+    onEntry {
         println("Attempting extraction")
 
         try {
             // Send data to the server
-            writer.write(incoming)
-            writer.newLine()  // Add a newline character
-            writer.flush()
+            matchServ.writer.write(incoming)
+            matchServ.writer.newLine()  // Add a newline character
+            matchServ.writer.flush()
         } catch (e: Exception) {
             e.printStackTrace()
-            return ""
+            terminate("".toString())
         }
-
         try {
             // Read response from the server
-            val rec = reader.readLine() ?: ""
-            println("received from server: "+rec)
+            val rec = matchServ.reader.readLine() ?: ""
+            println("received from server: " + rec)
             if (rec.isNotEmpty()) {
                 println("Received response: $rec")
-                return rec
+                // Check if the response is "Initiating slow matching"
+                if (rec.contains("!slow matching")) {
+                    // Call your function for handling slow matching initiation
+                    call(slowMatchingResponse())
+                    // Wait for the second response with the matches
+                    val secondResponse = matchServ.reader.readLine() ?: ""
+                    println("Received second response: $secondResponse")
+                    terminate(secondResponse.toString())
+                }
+                terminate(rec.toString())
             } else {
                 println("Received an empty response")
-                return ""
+                terminate("".toString())
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            return ""
+            terminate("".toString())
         }
     }
+}
 
-    fun close() {
+fun closeMatchServ(): State = state(Init) {
+    onEntry {
         try {
-            writer.close()
-            reader.close()
-            socket.close()
+            matchServ.writer.close()
+            matchServ.reader.close()
+            matchServ.socket.close()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
-
 }
+

@@ -3,10 +3,7 @@ package furhatos.app.base_search_agent.flow
 import furhatos.app.base_search_agent.CustomLogger
 import furhatos.app.base_search_agent.nlu.*
 import furhatos.app.base_search_agent.nlu.Number
-import furhatos.flow.kotlin.State
-import furhatos.flow.kotlin.furhat
-import furhatos.flow.kotlin.onResponse
-import furhatos.flow.kotlin.state
+import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
 import org.json.JSONObject
 import kotlinx.serialization.SerialName
@@ -60,8 +57,9 @@ fun conversationalPrompt(): State = state(Init) {
     this.onResponse {
         call(cl.customResponse(it.text))
         currentSet.kws_prev = currentSet.kws//.toList().toMutableList()
-        var newKWs = matchServ.extract(it.text.lowercase())
-        currentSet.loadDataFromJson(newKWs)
+        var newKWs = call(extractMatchServ(it.text.lowercase()))
+
+        currentSet.loadDataFromJson(newKWs.toString())
 
         if (currentSet.kws.size == 0) {
             call(cl.customSay("ik verstond <break time=\"0.5s\"/> ${it.text}"))
@@ -208,3 +206,15 @@ fun askToWatch(): State = state(Init) {
         }
     }
 }
+
+fun slowMatchingResponse () : State = state(Init) {
+   onEntry {
+       println("##### in slow matching response")
+       call(cl.customSay("Even zoeken hoor!"))
+       terminate()
+   }
+}
+//
+//fun Furhat.slowMatchingResponse() {
+//    say("ha")
+//}

@@ -55,7 +55,7 @@ val Init: State = state(GUIConnected) {
             //rate = 1.65
         )
         furhat.setVoice(v)
-        matchServ.connect()
+        call(connectMatchServ())
         furhat.setInputLanguage(Language.DUTCH)
         furhat.param.noSpeechTimeout = 12000
         furhat.param.endSilTimeout = 2000
@@ -92,7 +92,7 @@ val Init: State = state(GUIConnected) {
     }
 
     onButton("Test new matching server") {
-        matchServ.extract("pony's")
+        extractMatchServ("pony's")
     }
 
     onButton("Dump log") {

@@ -1,9 +1,6 @@
 package furhatos.app.base_search_agent
 
-import furhatos.app.base_search_agent.flow.Init
-import furhatos.app.base_search_agent.flow.NoGUI
-import furhatos.app.base_search_agent.flow.kbserv
-import furhatos.app.base_search_agent.flow.matchServ
+import furhatos.app.base_search_agent.flow.*
 import furhatos.flow.kotlin.Flow
 import furhatos.skills.Skill
 

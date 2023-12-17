@@ -54,8 +54,6 @@ function displayChatReactMode(input) {
     document.getElementById('videoContainer').innerHTML = '';
     document.getElementById('chatContainer').innerHTML = '';
 
-    //deselectEmoji();
-
     addMessagesToDOM(input)
 
     if (!document.getElementById("readyButton")) {
@@ -94,9 +92,8 @@ function addMessagesToDOM(messagesJson) {
         // Create divs and other elements
         let bubbleWrapper = document.createElement('div');
         bubbleWrapper.className = 'bubbleWrapper';
-
+        console.log(message.startTime);
         let inlineContainer = document.createElement('div');
-
 
         if (message.who == "robot") {
             inlineContainer.className = 'inlineContainer';
@@ -109,7 +106,6 @@ function addMessagesToDOM(messagesJson) {
             bubble.className = 'otherBubble other';
             bubble.id = message.id;
             bubble.textContent = message.text;
-            //otherBubble.setAttribute('onclick', `openEmojiPicker('${message.id}')`);
             bubble.addEventListener('click', () => openEmojiPicker(message.id));
 
             let reaction = document.createElement('div');
@@ -143,11 +139,21 @@ function addMessagesToDOM(messagesJson) {
             bubbleWrapper.appendChild(inlineContainer);
         }
 
+        reactions[message.id] = {
+            reaction: message.emojiId,
+            text: '',
+            utterance: message.text, // Store the text it was based on
+            startTime: message.startTime, // Add a startTime property if needed
+            who: message.who// Add other properties as needed
+        };
+
+
+
         // Append to document
         // Assuming bubbleWrapper is already defined and you want to append it to a div with the id 'chat'
         var chatDiv = document.getElementById('chatContainer');
         chatDiv.appendChild(bubbleWrapper);
-
+        updateSingleReaction(message.id);
     });
 }
 
@@ -297,7 +303,8 @@ function selectEmoji(emoji) {
     if (selectedEmoji) {
         selectedEmoji.classList.add('selected');
     }
-    reactions[messageId] = { reaction: emoji };
+    //reactions[messageId] = { reaction: emoji };    ///old
+    reactions[messageId].reaction = emoji; // new
     updateReactions();
 }
 
@@ -334,6 +341,28 @@ function updateReactions() {
             emojiOverlay.style.display = 'none';
         }
     }
+}
+
+function updateSingleReaction(messageId) {
+    const message = document.getElementById(messageId);
+    const emojiOverlay = message ? message.querySelector('.emojiOverlay') : null;
+
+    if (emojiOverlay) {
+        const { reaction } = reactions[messageId];
+
+        if (reaction) {
+            emojiOverlay.textContent = reaction;
+            emojiOverlay.style.display = 'block';
+        } else {
+            emojiOverlay.textContent = '';
+            emojiOverlay.style.display = 'none';
+        }
+    }
+}
+
+
+
+
 //    const messageId = document.getElementById('emojiPicker').dataset.messageId;
 //    const message = document.getElementById(messageId);
 //    const emojiOverlay = message ? message.querySelector('.emojiOverlay') : null;
@@ -356,17 +385,16 @@ function updateReactions() {
 //            emojiOverlay.appendChild(textElement);
 //        }
 //    }
-}
+
 
 function exportReactions() {
     console.log("readyButton pressed");
     const jsonReactions = JSON.stringify(reactions);
 
-    furhat.send({
-        event_name: "ClickButton",
-        data: "hi mom"
-    })
-
+//    furhat.send({
+//        event_name: "ClickButton",
+//        data: "hi mom"
+//    })
     console.log(jsonReactions);
 }
 

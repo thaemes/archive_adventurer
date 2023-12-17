@@ -167,7 +167,7 @@ fun askToWatch(): State = state(Init) {
     }
     onResponse<Number> {
         call(cl.customResponse(it.text))
-        cl.customSay("oke, leuk! ")
+        call(cl.customSay("oke, leuk! "))
         val number: Int
         number = when (it.intent.value?.toInt()) {
             -2 -> (currentSet.getSetSize()?.toInt()?.minus(2)!!)

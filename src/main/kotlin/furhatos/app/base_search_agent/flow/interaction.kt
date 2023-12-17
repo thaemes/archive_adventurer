@@ -1,7 +1,6 @@
 package furhatos.app.base_search_agent.flow
 
 import furhatos.app.base_search_agent.DataDelivery
-import furhatos.app.base_search_agent.PORT
 import furhatos.app.base_search_agent.SPEECH_DONE
 import furhatos.event.senses.SenseSkillGUIConnected
 import furhatos.flow.kotlin.*
@@ -11,9 +10,11 @@ import furhatos.util.Gender
 import furhatos.util.Language
 import org.json.JSONArray
 import org.json.JSONObject
-import furhatos.flow.kotlin.*
-import furhatos.records.Record
-
+import java.io.File
+import java.io.FileWriter
+import java.io.BufferedWriter
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 val GUI2 = HostedGUI("Gui2", "assets/gui2b", 1313)
@@ -37,6 +38,12 @@ val GUIConnected = state(NoGUI) {
         println("A GUI connected")
         goto(Init)
     }
+
+    onEvent(CLICK_BUTTON) {
+       println("Rec'd annotated logs at furhat side: " + it.get("data"))
+       call(writeAnnotatedLog(it.get("data").toString()))
+    }
+
 }
 
 
@@ -119,7 +126,6 @@ val Init: State = state(GUIConnected) {
         messagesArray.put(message1)
         messagesArray.put(message2)
 
-
         send(DataDelivery(buttons = null, inputFields = null, messagesLog = listOf(messagesJson.toString()), videoUrl = null))
         println("sent: "+ messagesJson)
     }
@@ -145,3 +151,48 @@ fun watchVideo(link: String?) = state(Init) {
     }
 }
 
+fun writeAnnotatedLog(input: String) = state(Init) {
+
+    try {
+        // Create a File object with the given file path
+        val file = File(generateFilename())
+
+        // Create a FileWriter and BufferedWriter to write to the file
+        val fileWriter = FileWriter(file)
+        val bufferedWriter = BufferedWriter(fileWriter)
+
+        // Write the JSON string to the file
+        bufferedWriter.write(input)
+
+        // Close the BufferedWriter to flush and save the changes
+        bufferedWriter.close()
+
+        println("JSON data has been written to $file")
+    } catch (e: Exception) {
+        println("Error writing JSON data to file: ${e.message}")
+    }
+
+}
+
+
+fun generateFilename(): String {
+    val currentDate = Date()
+
+    println("generate file name in action")
+    // Get the current day of the month and month in the desired format
+    val dayMonthFormat = SimpleDateFormat("dd-MM-yyyy")
+    val dayMonth = dayMonthFormat.format(currentDate)
+
+    // Get the current time in the desired format
+    val timeFormat = SimpleDateFormat("HH-mm-ss")
+    val time = timeFormat.format(currentDate)
+
+    // Generate a random 4-digit string
+    val random = Random()
+    val randomString = String.format("%04d", random.nextInt(10000))
+
+    // Combine the components to create the filename
+    val filename = "output/$dayMonth@$time#$randomString.json"
+
+    return filename
+}

@@ -4,6 +4,7 @@ let currentlyEditingMessageId = null;
 let isEmojiPickerOpen = false;
 const emojiList = ['😀', '😂', '😊', '😎', '😜', '😍', '😘', '🥳', '👍', '👎'];
 let furhat = null;
+let agePanelVisible = false;
 
 console.log("i am loaded")
 
@@ -78,7 +79,7 @@ function displayChatReactMode(input) {
         document.body.appendChild(readyButtonContainer);
 
         // Add a click event listener to the button
-        readyButton.addEventListener('click', () => exportReactions());
+        readyButton.addEventListener('click', () => displayAgePanel()); //exportReactions());
     }
 }
 
@@ -351,6 +352,77 @@ function updateSingleReaction(messageId) {
             emojiOverlay.style.display = 'none';
         }
     }
+}
+
+
+
+function displayAgePanel() {
+    // Check if the age panel is already visible, if so, do nothing
+    if (agePanelVisible) {
+        return;
+    }
+
+    // Create an overlay container for the age panel
+    const overlayContainer = document.createElement("div");
+    overlayContainer.id = "overlayContainer";
+
+    // Create a container for the age input, confirm button, and back button
+    const agePanelContainer = document.createElement("div");
+    agePanelContainer.id = "agePanelContainer";
+
+    // Create a label for the age input
+    const ageInputLabel = document.createElement("label");
+    ageInputLabel.innerText = "Vul je leeftijd in:";
+    agePanelContainer.appendChild(ageInputLabel);
+
+    // Create an input field for age
+    const ageInput = document.createElement("input");
+    ageInput.type = "number";
+    ageInput.id = "ageInput";
+    agePanelContainer.appendChild(ageInput);
+
+    // Create a confirm button
+    const confirmButton = document.createElement("button");
+    confirmButton.innerText = "Ok";
+    confirmButton.id = "confirmButton";
+    agePanelContainer.appendChild(confirmButton);
+
+    // Create a back button
+    const backButton = document.createElement("button");
+    backButton.innerText = "Terug";
+    backButton.id = "backButton";
+    agePanelContainer.appendChild(backButton);
+
+    // Append the age panel container to the overlay container
+    overlayContainer.appendChild(agePanelContainer);
+
+    // Append the overlay container to the body
+    document.body.appendChild(overlayContainer);
+
+    // Set agePanelVisible to true
+    agePanelVisible = true;
+
+    // Add event listener for the confirm button
+    confirmButton.addEventListener('click', () => {
+        const ageValue = document.getElementById('ageInput').value;
+        if (!isNaN(ageValue) && ageValue >= 0) {
+            // Age is valid, include it in reactions and hide the age panel
+            reactions['age'] = ageValue;
+            overlayContainer.style.display = 'none'; // Hide the overlay
+            agePanelVisible = false;
+            exportReactions();
+        } else {
+            // Invalid age, show an error message (you can customize this)
+            alert("Gebruik een nummer");
+        }
+    });
+
+    // Add event listener for the back button
+    backButton.addEventListener('click', () => {
+        // Hide the overlay
+        overlayContainer.style.display = 'none';
+        agePanelVisible = false;
+    });
 }
 
 

@@ -52,8 +52,6 @@ class MatchingServer {
         }
     }
 
-
-
     fun close() {
         try {
             writer.close()

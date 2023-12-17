@@ -45,7 +45,6 @@ function displayVideoMode(input) {
 
     // Append the video element to the body of the document
     // You can change 'document.body' to append it to a different element
-    //document.body.appendChild(video);
     document.getElementById("videoContainer").innerHTML = video.outerHTML;
 }
 
@@ -92,7 +91,6 @@ function addMessagesToDOM(messagesJson) {
         // Create divs and other elements
         let bubbleWrapper = document.createElement('div');
         bubbleWrapper.className = 'bubbleWrapper';
-        console.log(message.startTime);
         let inlineContainer = document.createElement('div');
 
         if (message.who == "robot") {
@@ -146,8 +144,6 @@ function addMessagesToDOM(messagesJson) {
             startTime: message.startTime, // Add a startTime property if needed
             who: message.who// Add other properties as needed
         };
-
-
 
         // Append to document
         // Assuming bubbleWrapper is already defined and you want to append it to a div with the id 'chat'
@@ -286,12 +282,10 @@ function closeEmojiPicker() {
     updateReactions();
 
     isEmojiPickerOpen = false;
-
 }
 
 
 function selectEmoji(emoji) {
-    //let selectedEmoji = ''; // Declare selectedEmoji at a broader scope
     const messageId = document.getElementById('emojiPicker').dataset.messageId;
     const emojiContainer = document.querySelector('.emojiContainer');
 
@@ -303,7 +297,6 @@ function selectEmoji(emoji) {
     if (selectedEmoji) {
         selectedEmoji.classList.add('selected');
     }
-    //reactions[messageId] = { reaction: emoji };    ///old
     reactions[messageId].reaction = emoji; // new
     updateReactions();
 }
@@ -361,45 +354,19 @@ function updateSingleReaction(messageId) {
 }
 
 
-
-
-//    const messageId = document.getElementById('emojiPicker').dataset.messageId;
-//    const message = document.getElementById(messageId);
-//    const emojiOverlay = message ? message.querySelector('.emojiOverlay') : null;
-//
-//    if (emojiOverlay) {
-//        const { reaction, text } = reactions[messageId];
-//
-//        if (reaction) {
-//            emojiOverlay.textContent = reaction.emoji;
-//            emojiOverlay.style.display = 'block';
-//        } else {
-//            emojiOverlay.textContent = '';
-//            emojiOverlay.style.display = 'none';
-//        }
-//
-//        if (text) {
-//            // Display the text reaction below the emoji
-//            const textElement = document.createElement('div');
-//            textElement.textContent = text;
-//            emojiOverlay.appendChild(textElement);
-//        }
-//    }
-
-
 function exportReactions() {
     console.log("readyButton pressed");
     const jsonReactions = JSON.stringify(reactions);
 
-//    furhat.send({
-//        event_name: "ClickButton",
-//        data: "hi mom"
-//    })
+    furhat.send({
+        event_name: "ClickButton",
+        data: jsonReactions
+    })
     console.log(jsonReactions);
 }
 
 
-// Add the following functions to toggle the blur class on the body
+// toggle the blur class on the body
 function addBlur() {
     document.body.classList.add('blur');
 }
@@ -408,4 +375,3 @@ function removeBlur() {
     document.body.classList.remove('blur');
 }
 
-// Assuming a function that renders each message

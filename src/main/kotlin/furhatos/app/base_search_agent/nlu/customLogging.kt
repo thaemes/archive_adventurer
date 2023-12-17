@@ -61,7 +61,7 @@ class CustomLogger {
                 put("who", who)
                 put("id", counter)
                 put("text", text)
-                put("emojiId", "\uD83D\uDE0D")
+                put("emojiId", "")
                 put("startTime", formattedTime)
             }
             println("about to add: "+ message.toString())

@@ -19,6 +19,9 @@ const val MATCHING_SERVER_PORT = 12223
 // BEELD & GELUID Config
 const val bg_kg_url = "https://cat.apis.beeldengeluid.nl/sparql/"
 
+const val filePath = ""
+
+
 // Event used to pass data to GUI
 class DataDelivery(
     val buttons : List<String>?,
@@ -26,3 +29,4 @@ class DataDelivery(
     val messagesLog: List<String>?,
     val videoUrl: List<String>?
 ) : Event()
+

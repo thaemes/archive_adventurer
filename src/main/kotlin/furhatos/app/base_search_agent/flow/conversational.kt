@@ -13,7 +13,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-//import furhatos.app.base_search_agent.nlu.customLogging
 
 var currentSet = KeywordCollection()
 var cl = CustomLogger()

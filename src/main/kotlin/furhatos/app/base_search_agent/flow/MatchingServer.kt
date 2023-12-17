@@ -2,13 +2,10 @@ package furhatos.app.base_search_agent.flow
 
 import furhatos.app.base_search_agent.MATCHING_SERVER_IP
 import furhatos.app.base_search_agent.MATCHING_SERVER_PORT
-import furhatos.flow.kotlin.Flow
-import furhatos.flow.kotlin.Furhat
 import furhatos.flow.kotlin.State
 import furhatos.flow.kotlin.state
 import java.io.*
 import java.net.Socket
-
 
 class MatchingServer {
     lateinit var socket: Socket
@@ -25,7 +22,6 @@ class MatchingServer {
         }
     }
 }
-
 
 fun connectMatchServ(): State = state(Init) {
     onEntry {
@@ -78,16 +74,3 @@ fun extractMatchServ(incoming: String?): State = state(Init) {
         }
     }
 }
-
-fun closeMatchServ(): State = state(Init) {
-    onEntry {
-        try {
-            matchServ.writer.close()
-            matchServ.reader.close()
-            matchServ.socket.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-}
-

@@ -6,10 +6,7 @@ import furhatos.app.base_search_agent.nlu.Number
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
 import org.json.JSONObject
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
+
 
 var currentSet = KeywordCollection()
 var cl = CustomLogger()
@@ -17,7 +14,7 @@ var cl = CustomLogger()
 
 fun conversationalPrompt(): State = state(Init) {
     onEntry {
-        if (currentSet.kws.size == 0) call(cl.customAsk("waar zal ik naar zoeken?"))//furhat.ask("waar zal ik naar zoeken?")
+        if (currentSet.kws.size == 0) call(cl.customAsk("Waar zal ik naar zoeken?"))
         else if (currentSet?.getSetSize() != 0 && currentSet.getSetSize()!! <= 3) goto(conversationalResult())
         else if (currentSet.cameFromSuggestion) {
             call(cl.customAsk("Zit daar een onderwerp tussen dat je interessant lijkt? Zo ja welke?"))
@@ -40,7 +37,7 @@ fun conversationalPrompt(): State = state(Init) {
         goto(askSuggest())
     }
 
-    this.onResponse<provideOptions>{
+    this.onResponse<provideOptions> {
         call(cl.customResponse(it.text))
         goto(askSuggest())
     }
@@ -64,7 +61,7 @@ fun conversationalPrompt(): State = state(Init) {
         if (currentSet.kws.size == 0) {
             call(cl.customSay("ik verstond <break time=\"0.5s\"/> ${it.text}"))
             call(cl.customSay("Daar zitten geen onderwerpen in die ik kenn"))
-            if(currentSet.cameFromSuggestion) goto(askSuggest(same = true))
+            if (currentSet.cameFromSuggestion) goto(askSuggest(same = true))
             else goto(conversationalPrompt())
         }
 
@@ -86,11 +83,11 @@ fun conversationalPrompt(): State = state(Init) {
 }
 
 
-fun askSuggest(same : Boolean = false): State = state(Init) {
+fun askSuggest(same: Boolean = false): State = state(Init) {
     onEntry {
         val t: JSONObject?
         val ext: MutableList<String>? = mutableListOf()
-        var sortedList : List<String>
+        var sortedList: List<String>
 
         if (!same) {
             t = getLinkedTopicsMulti(currentSet.getGTAAs())
@@ -112,18 +109,19 @@ fun askSuggest(same : Boolean = false): State = state(Init) {
             currentSet.suggestedLastTurn.clear()
             currentSet.suggestedLastTurn.addAll(sortedList)
             println("\n")
-        }
-        else {
+        } else {
             println(currentSet.suggestedLastTurn.toString())
             sortedList = currentSet.suggestedLastTurn
         }
 
-        call(cl.customSay(
-             "Ik heb wel een suggestie. "//<break time=\"0.3s\"/>"
-            +"De filmpjes over ${currentSet.getHumanReadableLabels()}, gaan verder over bijvoorbeeld ${
-                concatStrings(sortedList)
-            }"
-        ))
+        call(
+            cl.customSay(
+                "Ik heb wel een suggestie. "//<break time=\"0.3s\"/>"
+                        + "De filmpjes over ${currentSet.getHumanReadableLabels()}, gaan verder over bijvoorbeeld ${
+                    concatStrings(sortedList)
+                }"
+            )
+        )
         currentSet.cameFromSuggestion = true
         goto(conversationalPrompt())
     }
@@ -143,11 +141,13 @@ fun conversationalResult(): State = state(Init) {
                 currentSet.cameFromSuggestion = false
                 goto(conversationalPrompt())
             }
+
             1 -> {
                 call(cl.customSay("ik heb 1 filmpje over ${currentSet.getHumanReadableLabels()}"))
                 call(cl.customSay("het filmpje heet ${currentSet.getSetVideos()?.map { it?.title }}"))
                 goto(askToWatch())
             }
+
             else -> {
                 call(cl.customSay("ik heb ${numberVideos} filmpjes over ${currentSet.getHumanReadableLabels()}."))
                 call(cl.customSay("de filmpjes heten ${concatStrings(currentSet.getSetVideos()?.map { it?.title })}."))
@@ -176,6 +176,7 @@ fun askToWatch(): State = state(Init) {
     }
     onResponse<Ja> {
         call(cl.customResponse(it.text))
+        call(cl.customSay("Oke, leuk!"))
         call(watchVideo(currentSet.getSetVideos()?.get(0)?.link))
     }
 
@@ -197,24 +198,24 @@ fun askToWatch(): State = state(Init) {
                 println("about to watch: " + currentSet.getSetVideos()?.get(index)?.title)
                 call(watchVideo(currentSet.getSetVideos()?.get(index)?.link))
                 goto(Init)
-            }
-            else {
+            } else {
                 call(cl.customSay("ik heb je niet begrepen."))
-                if(currentSet.getSetSize() == 1) goto(askToWatch())
+                if (currentSet.getSetSize() == 1) goto(askToWatch())
                 else goto(conversationalPrompt())
             }
         }
     }
 }
 
-fun slowMatchingResponse () : State = state(Init) {
-   onEntry {
-       println("##### in slow matching response")
-       call(cl.customSay("Even zoeken hoor!"))
-       terminate()
-   }
+fun slowMatchingResponse(): State = state(Init) {
+    onEntry {
+        println("##### in slow matching response")
+        furhat.gesture(Gestures.Smile)
+        call(cl.customSay("Oke, Even zoeken hoor!"))
+        furhat.gesture(Gestures.CloseEyes())
+        furhat.gesture(Gestures.Thoughtful(2.0, 3.0), async = false)
+        furhat.gesture(Gestures.OpenEyes())
+        furhat.gesture(Gestures.Smile)
+        terminate()
+    }
 }
-//
-//fun Furhat.slowMatchingResponse() {
-//    say("ha")
-//}

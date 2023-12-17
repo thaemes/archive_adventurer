@@ -19,6 +19,7 @@ class CustomLogger {
             terminate()
         }
     }
+
     fun customSay(text: String): State = state(Init) {
         onEntry {
             call(addLog("robot", text))
@@ -34,7 +35,7 @@ class CustomLogger {
             terminate()
         }
     }
-    
+
     fun customAsk(prompt: String): State = state(Init) {
         onEntry {
             call(addLog(who = "robot", text = prompt))
@@ -43,8 +44,8 @@ class CustomLogger {
         }
     }
 
-    fun customResponse(text: String): State = state(Init){
-        onEntry{
+    fun customResponse(text: String): State = state(Init) {
+        onEntry {
             call(addLog("kid", text))
             terminate()
         }
@@ -64,21 +65,19 @@ class CustomLogger {
                 put("emojiId", "")
                 put("startTime", formattedTime)
             }
-            println("about to add: "+ message.toString())
+            println("about to add: " + message.toString())
             messagesLogArray.put(message)
             counter++
             terminate()
         }
     }
 
-    fun getLog() : String {
-       val messagesJson = JSONObject().apply {
-           put("messages", messagesLogArray)
-       }
+    fun getLog(): String {
+        val messagesJson = JSONObject().apply {
+            put("messages", messagesLogArray)
+        }
         return messagesJson.toString()
     }
-
-
 
 }
 

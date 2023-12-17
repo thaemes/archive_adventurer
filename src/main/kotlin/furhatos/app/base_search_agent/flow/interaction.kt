@@ -17,8 +17,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-val GUI2 = HostedGUI("Gui2", "assets/gui2b", 1313)
-val VARIABLE_SET = "VariableSet"
+val GUI = HostedGUI("Gui", "assets/gui2b", 1313)
 val CLICK_BUTTON = "ClickButton"
 
 val kbserv = KeyBERTserver()
@@ -40,10 +39,9 @@ val GUIConnected = state(NoGUI) {
     }
 
     onEvent(CLICK_BUTTON) {
-       println("Rec'd annotated logs at furhat side: " + it.get("data"))
-       call(writeAnnotatedLog(it.get("data").toString()))
+        println("Rec'd annotated logs at furhat side: " + it.get("data"))
+        call(writeAnnotatedLog(it.get("data").toString()))
     }
-
 }
 
 
@@ -97,7 +95,7 @@ val Init: State = state(GUIConnected) {
 
     onButton("Dump log") {
         println(cl.getLog())
-        send(DataDelivery(buttons = null, inputFields = null, messagesLog = listOf(cl.getLog()), videoUrl = null ))
+        send(DataDelivery(buttons = null, inputFields = null, messagesLog = listOf(cl.getLog()), videoUrl = null))
         println("sent!")
     }
 
@@ -126,12 +124,26 @@ val Init: State = state(GUIConnected) {
         messagesArray.put(message1)
         messagesArray.put(message2)
 
-        send(DataDelivery(buttons = null, inputFields = null, messagesLog = listOf(messagesJson.toString()), videoUrl = null))
-        println("sent: "+ messagesJson)
+        send(
+            DataDelivery(
+                buttons = null,
+                inputFields = null,
+                messagesLog = listOf(messagesJson.toString()),
+                videoUrl = null
+            )
+        )
+        println("sent: " + messagesJson)
     }
 
-    onButton("Trigger videoMode"){
-        send(DataDelivery(buttons=null, inputFields = null, messagesLog = null, videoUrl= listOf("https://www.openbeelden.nl/files/12/36/1236793.WEEKNUMMER322-HRE0001DB16_2601000_2704960.mp4")))
+    onButton("Trigger videoMode") {
+        send(
+            DataDelivery(
+                buttons = null,
+                inputFields = null,
+                messagesLog = null,
+                videoUrl = listOf("https://www.openbeelden.nl/files/12/36/1236793.WEEKNUMMER322-HRE0001DB16_2601000_2704960.mp4")
+            )
+        )
 
     }
 }
@@ -144,7 +156,7 @@ fun watchVideo(link: String?) = state(Init) {
             exit()
         } else {
             println("%%% Rec'd. video link: $link")
-            send(DataDelivery(buttons= null, inputFields=null, messagesLog = null, videoUrl = listOf(link)))
+            send(DataDelivery(buttons = null, inputFields = null, messagesLog = null, videoUrl = listOf(link)))
             send(SPEECH_DONE)
         }
         terminate()

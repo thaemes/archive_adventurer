@@ -16,6 +16,7 @@ class CustomLogger {
     fun reset(): State = state(Init) {
         onEntry {
             messagesLogArray = JSONArray()
+            counter = 1
             terminate()
         }
     }

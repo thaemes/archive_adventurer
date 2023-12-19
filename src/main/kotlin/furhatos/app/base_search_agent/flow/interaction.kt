@@ -100,6 +100,12 @@ val Init: State = state(GUIConnected) {
         //call(extractMatchServ("tijger"))
     }
 
+    onButton("Test matching server") {
+        var res = call(extractMatchServ("bananen"))
+        println(res)
+    }
+
+
     onButton("Dump log", color=Color.Yellow) {
         println(cl.getLog())
         send(DataDelivery(buttons = null, inputFields = null, messagesLog = listOf(cl.getLog()), videoUrl = null))

@@ -100,6 +100,13 @@ fun askSuggest(same: Boolean = false): State = state(Init) {
         val ext: MutableList<String>? = mutableListOf()
         var sortedList: List<String>
 
+        if (currentSet.getGTAAs().isEmpty()) {
+            println("triggered suggestion while empty gtaa list!!!")
+            call(cl.customAsk("Wat denk je van tijgers, of architectuur, of vliegtuigen?"))
+            currentSet.cameFromSuggestion = true
+            goto(conversationalPrompt())
+        }
+
         if (!same) {
             t = getLinkedTopicsMulti(currentSet.getGTAAs())
             ext?.addAll(extractLinkedTopicsList(t)!!)

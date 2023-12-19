@@ -149,6 +149,10 @@ val Init: State = state(GUIConnected) {
             )
         )
     }
+
+    onButton("trigger suggestion") {
+        goto(askSuggest())
+    }
 }
 
 

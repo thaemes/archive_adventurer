@@ -1,6 +1,7 @@
 package furhatos.app.base_search_agent.flow
 
 import furhatos.app.base_search_agent.DataDelivery
+import furhatos.app.base_search_agent.PORT
 import furhatos.app.base_search_agent.SPEECH_DONE
 import furhatos.event.senses.SenseSkillGUIConnected
 import furhatos.flow.kotlin.*
@@ -17,7 +18,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-val GUI = HostedGUI("Gui", "assets/gui2b", 1313)
+val GUI = HostedGUI("Gui", "assets/gui2b", PORT)
 val CLICK_BUTTON = "ClickButton"
 
 val kbserv = KeyBERTserver()

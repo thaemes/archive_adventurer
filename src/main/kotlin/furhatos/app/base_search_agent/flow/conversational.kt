@@ -14,10 +14,18 @@ var cl = CustomLogger()
 
 fun conversationalPrompt(): State = state(Init) {
     onEntry {
-        if (currentSet.kws.size == 0) call(cl.customAsk("Waar zal ik naar zoeken?"))
+        if (currentSet.kws.size == 0) {
+            random(
+                {call(cl.customAsk("Hey! Waar zal ik naar zoeken?"))},
+                {call(cl.customAsk("Hey, welk onderwerp zullen we naar zoeken?"))}
+            )
+        }
         else if (currentSet?.getSetSize() != 0 && currentSet.getSetSize()!! <= 3) goto(conversationalResult())
         else if (currentSet.cameFromSuggestion) {
-            call(cl.customAsk("Zit daar een onderwerp tussen dat je interessant lijkt? Zo ja welke?"))
+            random (
+                {call(cl.customAsk("Zit daar een onderwerp tussen dat je interessant lijkt? Zo ja welke?"))},
+                {call(cl.customAsk("Zit daar iets interessants tussen?"))}
+            )
             //currentSet.cameFromSuggestion = false
         } else {
             if (currentSet.kws == currentSet.kws_prev) {
@@ -25,13 +33,16 @@ fun conversationalPrompt(): State = state(Init) {
                 if (currentSet.suggestionCounter >= 1) goto(askSuggest())
                 println(currentSet.suggestionCounter)
             }
-            call(cl.customAsk("wat lijken je verder interessanten onderwerpen in een filmpje over ${currentSet.getHumanReadableLabels()}?"))
+            random(
+                {call(cl.customAsk("wat lijken je verder interessanten onderwerpen in een filmpje over ${currentSet.getHumanReadableLabels()}?"))},
+                {call(cl.customAsk("Waar moet het verder over gaan?"))}
+            )
+
         }
     }
 
     this.onResponse<doNotKnow> {
         call(cl.customResponse(it.text))
-        println("came back!!!!!!!!!!!!!")
         furhat.gesture(Gestures.Smile)
         call(cl.customSay("oh, oke!"))
         goto(askSuggest())
@@ -44,7 +55,7 @@ fun conversationalPrompt(): State = state(Init) {
 
     this.onResponse<Nee> {
         call(cl.customResponse(it.text))
-        call(cl.customSay("oh jammer"))
+        call(cl.customSay("Oh jammer"))
         if (currentSet.cameFromSuggestion) {
             currentSet.suggestionCounter = 2
         }
@@ -59,7 +70,7 @@ fun conversationalPrompt(): State = state(Init) {
         currentSet.loadDataFromJson(newKWs.toString())
 
         if (currentSet.kws.size == 0) {
-            call(cl.customSay("ik verstond <break time=\"0.5s\"/> ${it.text}"))
+            call(cl.customSay("Ik verstond ${it.text}"))
             call(cl.customSay("Daar zitten geen onderwerpen in die ik kenn"))
             if (currentSet.cameFromSuggestion) goto(askSuggest(same = true))
             else goto(conversationalPrompt())
@@ -114,13 +125,17 @@ fun askSuggest(same: Boolean = false): State = state(Init) {
             sortedList = currentSet.suggestedLastTurn
         }
 
-        call(
+        random(
+            {call(
+
             cl.customSay(
                 "Ik heb wel een suggestie. "//<break time=\"0.3s\"/>"
                         + "De filmpjes over ${currentSet.getHumanReadableLabels()}, gaan verder over bijvoorbeeld ${
                     concatStrings(sortedList)
                 }"
             )
+        )},
+            {call(cl.customSay("De overgebleven filmpjes gaan ook over bijvoorbeeld ${concatStrings(sortedList)}"))}
         )
         currentSet.cameFromSuggestion = true
         goto(conversationalPrompt())
@@ -132,25 +147,25 @@ fun conversationalResult(): State = state(Init) {
         when (val numberVideos = currentSet.getSetSize()) {
             0, null -> {
                 if (currentSet.getHumanReadableLabels() == null || currentSet.getHumanReadableLabels() == "") {
-                    call(cl.customSay("ik heb helaas geen filmpjes gevonden"))
+                    call(cl.customSay("Ik heb helaas niks gevonden"))
                 } else {
-                    call(cl.customSay("ik heb helaas geen filmpjes gevonden over ${currentSet.getHumanReadableLabels()}"))
+                    call(cl.customSay("Ik heb helaas geen filmpjes gevonden over ${currentSet.getHumanReadableLabels()}"))
                 }
                 currentSet.stepBack()
-                call(cl.customSay("Ik doe even een stapje terug"))
+                call(cl.customSay("Ik doe even een stapje terug."))
                 currentSet.cameFromSuggestion = false
                 goto(conversationalPrompt())
             }
 
             1 -> {
-                call(cl.customSay("ik heb 1 filmpje over ${currentSet.getHumanReadableLabels()}"))
-                call(cl.customSay("het filmpje heet ${currentSet.getSetVideos()?.map { it?.title }}"))
+                call(cl.customSay("Ik heb 1 filmpje over ${currentSet.getHumanReadableLabels()}"))
+                call(cl.customSay("Het filmpje heet ${currentSet.getSetVideos()?.map { it?.title }}"))
                 goto(askToWatch())
             }
 
             else -> {
-                call(cl.customSay("ik heb ${numberVideos} filmpjes over ${currentSet.getHumanReadableLabels()}."))
-                call(cl.customSay("de filmpjes heten ${concatStrings(currentSet.getSetVideos()?.map { it?.title })}."))
+                call(cl.customSay("Ik heb ${numberVideos} filmpjes over ${currentSet.getHumanReadableLabels()}."))
+                call(cl.customSay("De filmpjes heten ${concatStrings(currentSet.getSetVideos()?.map { it?.title })}."))
                 goto(askToWatch())
             }
         }
@@ -160,8 +175,9 @@ fun conversationalResult(): State = state(Init) {
 fun askToWatch(): State = state(Init) {
     onEntry {
         if (currentSet.getSetSize() == 1) call(cl.customAsk("wil je die zien?"))
-        call(cl.customAsk("welk filmpje wil je zien? "))
+        call(cl.customAsk("Welk filmpje wil je zien?"))
     }
+
     onResponse<Number> {
         call(cl.customResponse(it.text))
         call(cl.customSay("oke, leuk! "))
@@ -174,6 +190,7 @@ fun askToWatch(): State = state(Init) {
         println("### about to watch: " + currentSet.getSetVideos()?.get(number)?.title)
         call(watchVideo(it.intent.value?.let { it1 -> currentSet.getSetVideos()?.get(number)?.link }))
     }
+
     onResponse<Ja> {
         call(cl.customResponse(it.text))
         call(cl.customSay("Oke, leuk!"))
@@ -189,22 +206,26 @@ fun askToWatch(): State = state(Init) {
 
     onResponse {
         call(cl.customResponse(it.text))
-        val wd = kbserv.keyBERTExtract(it.text.toLowerCase()).toString()
-        val titleList = currentSet.getSetVideos()?.map { it?.title }
-
-        titleList?.forEachIndexed { index, title ->
-            if (title?.let { wd.toLowerCase() in it.toLowerCase() } == true) {
-                call(cl.customSay("Oke leuk!"))
-                println("about to watch: " + currentSet.getSetVideos()?.get(index)?.title)
-                call(watchVideo(currentSet.getSetVideos()?.get(index)?.link))
-                goto(Init)
-            } else {
-                call(cl.customSay("ik heb je niet begrepen."))
-                if (currentSet.getSetSize() == 1) goto(askToWatch())
-                else goto(conversationalPrompt())
-            }
-        }
+        call(cl.customAsk("Kun je het nummer van de video noemen?"))
+        reentry()
     }
+//        call(cl.customResponse(it.text))
+//        val wd = kbserv.keyBERTExtract(it.text.toLowerCase()).toString()
+//        val titleList = currentSet.getSetVideos()?.map { it?.title }
+//
+//        titleList?.forEachIndexed { index, title ->
+//            if (title?.let { wd.toLowerCase() in it.toLowerCase() } == true) {
+//                call(cl.customSay("Oke leuk!"))
+//                println("about to watch: " + currentSet.getSetVideos()?.get(index)?.title)
+//                call(watchVideo(currentSet.getSetVideos()?.get(index)?.link))
+//                goto(Init)
+//            } else {
+//                call(cl.customSay("ik heb je niet begrepen."))
+//                if (currentSet.getSetSize() == 1) goto(askToWatch())
+//                else goto(conversationalPrompt())
+//            }
+//        }
+//    }
 }
 
 fun slowMatchingResponse(): State = state(Init) {

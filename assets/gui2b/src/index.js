@@ -162,9 +162,10 @@ function openEmojiPicker(messageId) {//, existingReaction = '') {
     // Apply blur to other elements
     const allMessages = document.querySelectorAll('.otherBubble, .ownBubble, .inlineIcon, .inlineContainer.own, .readyButton');
     allMessages.forEach(message => {
-        if (message.id !== messageId) {
+        console.log("messageId: "+messageId +"    message.id: "+message.id)
+        if (message.id != "" && message.id != messageId ) {
             message.classList.add('blur');
-        }
+        } else {console.log("no blur because: " + message.id )}
     });
     ///// END of blur CODE
 

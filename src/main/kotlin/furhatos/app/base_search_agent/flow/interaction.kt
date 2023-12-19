@@ -42,6 +42,8 @@ val GUIConnected = state(NoGUI) {
     onEvent(CLICK_BUTTON) {
         println("Rec'd annotated logs at furhat side: " + it.get("data"))
         call(writeAnnotatedLog(it.get("data").toString()))
+        currentSet.reset() // added 19 Dec
+        call(cl.reset())   // added 19 Dec
     }
 }
 
@@ -58,6 +60,7 @@ val Init: State = state(GUIConnected) {
         furhat.setInputLanguage(Language.DUTCH)
         furhat.param.noSpeechTimeout = 12000
         furhat.param.endSilTimeout = 2000
+        dialogLogger.startSession()
     }
     onReentry {
     }
@@ -66,9 +69,9 @@ val Init: State = state(GUIConnected) {
         goto(conversationalPrompt())
     }
 
-    onButton("Start Query-Response") {
-        goto(SearchQueryResponse())
-    }
+//    onButton("Start Query-Response") {
+//        goto(SearchQueryResponse())
+//    }
 
     onButton("Skip next utterance") {
         furhat.say("", abort = true)
@@ -94,7 +97,7 @@ val Init: State = state(GUIConnected) {
         extractMatchServ("pony's")
     }
 
-    onButton("Dump log") {
+    onButton("Dump log", color=Color.Yellow) {
         println(cl.getLog())
         send(DataDelivery(buttons = null, inputFields = null, messagesLog = listOf(cl.getLog()), videoUrl = null))
         println("sent!")
@@ -145,7 +148,6 @@ val Init: State = state(GUIConnected) {
                 videoUrl = listOf("https://www.openbeelden.nl/files/12/36/1236793.WEEKNUMMER322-HRE0001DB16_2601000_2704960.mp4")
             )
         )
-
     }
 }
 

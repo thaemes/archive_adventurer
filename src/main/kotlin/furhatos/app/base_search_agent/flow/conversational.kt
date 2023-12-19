@@ -7,17 +7,15 @@ import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
 import org.json.JSONObject
 
-
 var currentSet = KeywordCollection()
 var cl = CustomLogger()
-
 
 fun conversationalPrompt(): State = state(Init) {
     onEntry {
         if (currentSet.kws.size == 0) {
             random(
-                {call(cl.customAsk("Hey! Waar zal ik naar zoeken?"))},
-                {call(cl.customAsk("Hey, welk onderwerp zullen we naar zoeken?"))}
+                {call(cl.customAsk("Waar zal ik naar zoeken?"))},
+                {call(cl.customAsk("Welk onderwerp zullen we naar zoeken?"))}
             )
         }
         else if (currentSet?.getSetSize() != 0 && currentSet.getSetSize()!! <= 3) goto(conversationalResult())
@@ -106,7 +104,6 @@ fun askSuggest(same: Boolean = false): State = state(Init) {
             currentSet.cameFromSuggestion = true
             goto(conversationalPrompt())
         }
-
         if (!same) {
             t = getLinkedTopicsMulti(currentSet.getGTAAs())
             ext?.addAll(extractLinkedTopicsList(t)!!)
@@ -142,7 +139,7 @@ fun askSuggest(same: Boolean = false): State = state(Init) {
                 }"
             )
         )},
-            {call(cl.customSay("De overgebleven filmpjes gaan ook over bijvoorbeeld ${concatStrings(sortedList)}"))}
+            {call(cl.customSay("De filmpjes gaan ook over bijvoorbeeld ${concatStrings(sortedList)}"))}
         )
         currentSet.cameFromSuggestion = true
         goto(conversationalPrompt())

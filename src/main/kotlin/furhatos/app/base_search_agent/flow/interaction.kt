@@ -44,6 +44,7 @@ val GUIConnected = state(NoGUI) {
         call(writeAnnotatedLog(it.get("data").toString()))
         currentSet.reset() // added 19 Dec
         call(cl.reset())   // added 19 Dec
+        currentSet.reset() // added 19 Dec
     }
 }
 
@@ -56,11 +57,12 @@ val Init: State = state(GUIConnected) {
             //rate = 1.65
         )
         furhat.setVoice(v)
-        call(connectMatchServ())
+        furhat.setInputLanguage(Language.DUTCH)
+        //call(connectMatchServ())
         furhat.setInputLanguage(Language.DUTCH)
         furhat.param.noSpeechTimeout = 12000
         furhat.param.endSilTimeout = 2000
-        dialogLogger.startSession()
+        //dialogLogger.startSession()
     }
     onReentry {
     }
@@ -93,8 +95,9 @@ val Init: State = state(GUIConnected) {
         dialogLogger.endSession()
     }
 
-    onButton("Test new matching server") {
-        extractMatchServ("pony's")
+    onButton("Connect matching server") {
+        call(connectMatchServ())
+        //call(extractMatchServ("tijger"))
     }
 
     onButton("Dump log", color=Color.Yellow) {

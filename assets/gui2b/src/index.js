@@ -2,7 +2,8 @@ import FurhatGUI from 'furhat-gui'
 let reactions = {};
 let currentlyEditingMessageId = null;
 let isEmojiPickerOpen = false;
-const emojiList = ['😀', '😂', '😊', '😎', '😜', '😍', '😘', '🥳', '👍', '👎'];
+//const emojiList = ['😀', '😂', '😊', '😎', '😜', '😍', '😘', '🥳', '👍', '👎'];
+const emojiList = ['🤩', '😁', '😃', '😀', '🙂'];
 let furhat = null;
 let agePanelVisible = false;
 

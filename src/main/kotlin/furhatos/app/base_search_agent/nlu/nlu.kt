@@ -118,16 +118,16 @@ fun getQuantifyWord(number: Int?): String {
 class Number : EnumEntity() {
     override fun getEnum(Lang: Language): List<String> {
         return listOf(
-            "1: een, eerste",
-            "2: twee, tweede",
-            "3: drie, derde",
-            "4: vier, vierde",
-            "5: vijf, vijfde",
-            "6: zes, zesde",
-            "7: zeven, zevende",
-            "8: acht, achtste",
-            "9: negen, negende",
-            "10: tien, tiende",
+            "1: een, eerste, 1",
+            "2: twee, tweede, 2",
+            "3: drie, derde, 3",
+            "4: vier, vierde, 4",
+            "5: vijf, vijfde, 5",
+            "6: zes, zesde, 6",
+            "7: zeven, zevende, 7",
+            "8: acht, achtste, 8",
+            "9: negen, negende, 9 ",
+            "10: tien, tiende, 10",
             "-1: laatste",
             "-2: enerlaatste, een-na-laatste"
         )

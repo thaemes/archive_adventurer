@@ -3,6 +3,7 @@ package furhatos.app.base_search_agent.flow
 import furhatos.app.base_search_agent.DataDelivery
 import furhatos.app.base_search_agent.PORT
 import furhatos.app.base_search_agent.SPEECH_DONE
+import furhatos.app.base_search_agent.nlu.findClosestMatch
 import furhatos.event.senses.SenseSkillGUIConnected
 import furhatos.flow.kotlin.*
 import furhatos.flow.kotlin.voice.Voice
@@ -62,6 +63,7 @@ val Init: State = state(GUIConnected) {
         furhat.setInputLanguage(Language.DUTCH)
         furhat.param.noSpeechTimeout = 12000
         furhat.param.endSilTimeout = 2000
+        furhat.attendAll()
         //dialogLogger.startSession()
     }
     onReentry {
@@ -71,8 +73,12 @@ val Init: State = state(GUIConnected) {
         goto(conversationalPrompt())
     }
 
-//    onButton("Start Query-Response") {
-//        goto(SearchQueryResponse())
+    onButton("Start snappy") {
+        goto(conversationalPromptSnap())
+    }
+
+//    onButton("blank face") {
+
 //    }
 
     onButton("Skip next utterance") {
@@ -160,8 +166,16 @@ val Init: State = state(GUIConnected) {
     }
 
     onButton("trigger suggestion") {
-        goto(askSuggest())
+        goto(askSuggestSnap())
     }
+
+    onButton("test levenstein") {
+        val words = setOf("tentoonstellingen", "jonge dieren", "keuringen")
+        val input = "Ja die ene over de jonge dieren"
+        val closestMatch = findClosestMatch(words, input)
+        println("Closest match: $closestMatch")
+    }
+
 }
 
 

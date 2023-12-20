@@ -68,7 +68,7 @@ fun conversationalPrompt(): State = state(Init) {
 
         if (currentSet.kws.size == 0) {
             call(cl.customSay("Ik verstond ${it.text}"))
-            call(cl.customSay("Daar zitten geen onderwerpen in die ik kenn"))
+            call(cl.customSay("Daar zitten geen onderwerpen in die ik kenn. "))
             if (currentSet.cameFromSuggestion) goto(askSuggest(same = true))
             else goto(conversationalPrompt())
         }
@@ -83,7 +83,7 @@ fun conversationalPrompt(): State = state(Init) {
         else if (len!! <= 3) goto(conversationalResult())
         random(
             { call(cl.customSay("Ik heb ${getQuantifyWord(len)} filmpjes gevonden over ${currentSet.getHumanReadableLabels()}")) },
-            { call(cl.customSay("Ik heb ${getQuantifyWord(len)} veel filmpjes gevonden.")) }
+            { call(cl.customSay("Ik heb ${getQuantifyWord(len)} filmpjes gevonden.")) }
         )
         goto(conversationalPrompt())
     }
@@ -102,7 +102,7 @@ fun askSuggest(same: Boolean = false): State = state(Init) {
 
         if (currentSet.getGTAAs().isEmpty()) {
             println("triggered suggestion while empty gtaa list!!!")
-            call(cl.customAsk("Wat denk je van tijgers, of architectuur, of vliegtuigen?"))
+            call(cl.customAsk("Wat denk je van tijgers, of architectuur, of bananen?"))
             currentSet.cameFromSuggestion = true
             goto(conversationalPrompt())
         }
@@ -139,17 +139,16 @@ fun askSuggest(same: Boolean = false): State = state(Init) {
         }
 
         random(
-            {
-                call(
-
-                    cl.customSay(
-                        "Ik heb wel een suggestie. "//<break time=\"0.3s\"/>"
-                                + "De filmpjes over ${currentSet.getHumanReadableLabels()}, gaan verder over bijvoorbeeld ${
-                            concatStrings(sortedList)
-                        }"
-                    )
-                )
-            },
+//            {
+//                call(
+//                    cl.customSay(
+//                        "Ik heb wel een suggestie. "//<break time=\"0.3s\"/>"
+//                                + "De filmpjes over ${currentSet.getHumanReadableLabels()}, gaan verder over bijvoorbeeld ${
+//                            concatStrings(sortedList)
+//                        }"
+//                    )
+//                )
+//            },
             { call(cl.customSay("De filmpjes gaan ook over bijvoorbeeld ${concatStrings(sortedList)}")) }
         )
         currentSet.cameFromSuggestion = true

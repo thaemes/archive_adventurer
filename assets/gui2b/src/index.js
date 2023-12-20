@@ -34,25 +34,28 @@ console.log("i am loaded")
 function displayVideoMode(input) {
     //if(input.)
     document.getElementById('chatContainer').innerHTML = '';
+    document.getElementById('videoContainer').innerHTML = '';
     if (document.getElementById("agePanelContainer")) {document.getElementById("agePanelContainer").innerHTML = '';}
     if (document.getElementById("readyButton")) {document.getElementById("readyButtonContainer").innerHTML = '';}
 
     // Create a new video element
+    if (document.getElementById("vid")) {document.getElementById("vid").outerHTML = ''; console.log("old vid removed")}
     const video = document.createElement('video');
 
     // Set the video's source
     video.src = input;
     video.controls = true;
-
     video.autoplay = true;
+    video.id = "vid";
 
     // Set some optional attributes, like width and height
     video.width = 640;   // You can adjust this value
     video.height = 480;  // You can adjust this value
+    document.getElementById('videoContainer').append(video);
 
     // Append the video element to the body of the document
     // You can change 'document.body' to append it to a different element
-    document.getElementById("videoContainer").innerHTML = video.outerHTML;
+    //document.getElementById("videoContainer").innerHTML = video.outerHTML;
 }
 
 function displayChatReactMode(input) {

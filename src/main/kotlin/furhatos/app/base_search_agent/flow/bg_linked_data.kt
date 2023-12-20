@@ -1,7 +1,7 @@
 package furhatos.app.base_search_agent.flow
 
 import furhatos.app.base_search_agent.bg_kg_url
-import furhatos.app.base_search_agent.nlu.thesaurusKeyword
+import furhatos.app.base_search_agent.nlu.ThesaurusKeyword
 import furhatos.app.base_search_agent.nlu.pluralize
 import khttp.post
 import org.json.JSONObject
@@ -125,9 +125,9 @@ fun getGTAAPartial(input: String?): Pair<String?, JSONObject?> {
 }
 
 
-fun extractGTAAMulti2(res: List<Pair<String?, JSONObject?>>?): List<thesaurusKeyword?>? {
+fun extractGTAAMulti2(res: List<Pair<String?, JSONObject?>>?): List<ThesaurusKeyword?>? {
     if (res == null) return null
-    var results: MutableList<thesaurusKeyword?> = mutableListOf()
+    var results: MutableList<ThesaurusKeyword?> = mutableListOf()
 
     for (i in 0 until res.size) {
         try {
@@ -136,7 +136,7 @@ fun extractGTAAMulti2(res: List<Pair<String?, JSONObject?>>?): List<thesaurusKey
                 ?.getString("value")?.substringAfterLast("/")
             println("... Succesfully extracted a GTAA: ${out}")
             println("... result:" + res[i].toString())
-            results.add(thesaurusKeyword(out, res[i].first, 0.0), )
+            results.add(ThesaurusKeyword(out, res[i].first, 0.0), )
         } catch (e: Exception) {
             println("... JSON extraction of one GTAA Failed")
         }

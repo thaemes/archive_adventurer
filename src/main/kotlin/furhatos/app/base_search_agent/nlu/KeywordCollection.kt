@@ -2,36 +2,27 @@ package furhatos.app.base_search_agent.nlu
 
 import furhatos.app.base_search_agent.flow.currentSet
 import furhatos.app.base_search_agent.flow.searchLinkedAPIMulti
-import org.json.JSONObject
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-
-@Serializable
-data class thesaurusKeyword(
-    @SerialName("gtaa") var gtaa: String?,
-    @SerialName("label") var label: String?,
-    @SerialName("similarity_score") var similarityScore: Double
-)
+import org.json.JSONObject
 
 
 class KeywordCollection {
-    var kws: MutableList<thesaurusKeyword> = mutableListOf()
-    var kws_prev: MutableList<thesaurusKeyword> = mutableListOf()
+    var kws: MutableList<ThesaurusKeyword> = mutableListOf()
+    var kws_prev: MutableList<ThesaurusKeyword> = mutableListOf()
     var set: JSONObject? = null
     var suggestionCounter = 0
     var cameFromSuggestion = false
     var suggestedBefore: MutableList<String> = mutableListOf()
     var suggestedLastTurn: MutableList<String> = mutableListOf()
 
-    fun addKw(inK: thesaurusKeyword) {
+    fun addKw(inK: ThesaurusKeyword) {
         this.kws.add(inK)
     }
 
     fun loadDataFromJson(jsonData: String) {
         try {
-            val thesaurusKeywords = Json.decodeFromString<List<thesaurusKeyword>>(jsonData)
+            val thesaurusKeywords = Json.decodeFromString<List<ThesaurusKeyword>>(jsonData)
 
             // Find the word with the highest similarity score
             val mostSimilarWord = thesaurusKeywords.maxByOrNull { it.similarityScore }
@@ -107,6 +98,13 @@ class KeywordCollection {
             }
         }
         return videoList
+    }
+
+    fun getRandomVideo(): Video? {
+        val videos = getSetVideos()
+        return videos?.let {
+            if (it.isNotEmpty()) it.random() else null
+        }
     }
 
     fun stepBack() {

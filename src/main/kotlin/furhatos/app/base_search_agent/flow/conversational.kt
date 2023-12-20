@@ -96,8 +96,8 @@ fun conversationalPrompt(): State = state(Init) {
 
 fun askSuggest(same: Boolean = false): State = state(Init) {
     onEntry {
-        val t: JSONObject?
-        val ext: MutableList<String>? = mutableListOf()
+        val currentSetGTAAs: JSONObject?
+        val potentialOtherGTAAs: MutableList<String>? = mutableListOf()
         var sortedList: List<String>
 
         if (currentSet.getGTAAs().isEmpty()) {
@@ -106,13 +106,14 @@ fun askSuggest(same: Boolean = false): State = state(Init) {
             currentSet.cameFromSuggestion = true
             goto(conversationalPrompt())
         }
-        if (!same) {
-            t = getLinkedTopicsMulti(currentSet.getGTAAs())
-            ext?.addAll(extractLinkedTopicsList(t)!!)
-            ext?.removeAll(currentSet.getLabels().toSet())
-            ext?.removeAll(currentSet.suggestedBefore.toSet())
 
-            val groupedByCount = ext?.groupingBy { it }?.eachCount()
+        if (!same) {
+            currentSetGTAAs = getLinkedTopicsMulti(currentSet.getGTAAs())
+            potentialOtherGTAAs?.addAll(extractLinkedTopicsList(currentSetGTAAs)!!)
+            potentialOtherGTAAs?.removeAll(currentSet.getLabels().toSet())
+            potentialOtherGTAAs?.removeAll(currentSet.suggestedBefore.toSet())
+
+            val groupedByCount = potentialOtherGTAAs?.groupingBy { it }?.eachCount()
             sortedList =
                 groupedByCount?.toList()?.sortedByDescending { (_, count) -> count }?.map { it.first }?.take(3)
                     ?: emptyList()
@@ -121,7 +122,12 @@ fun askSuggest(same: Boolean = false): State = state(Init) {
             println("\n*** The most frequently occurring topics with their counts are (subset):")
             if (sortedMap != null) {
                 sortedMap.entries.take(5).forEach { (word, count) -> println("   $word: $count") }
+                if (sortedMap.isEmpty()) {
+                    call(cl.customSay("Ik heb geen suggesties meer. Sorry."))
+                    terminate()
+                }
             }
+
             currentSet.suggestedBefore.addAll(sortedList)
             currentSet.suggestedLastTurn.clear()
             currentSet.suggestedLastTurn.addAll(sortedList)
@@ -129,6 +135,7 @@ fun askSuggest(same: Boolean = false): State = state(Init) {
         } else {
             println(currentSet.suggestedLastTurn.toString())
             sortedList = currentSet.suggestedLastTurn
+
         }
 
         random(

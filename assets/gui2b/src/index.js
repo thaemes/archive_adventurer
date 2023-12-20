@@ -43,6 +43,8 @@ function displayVideoMode(input) {
     video.src = input;
     video.controls = true;
 
+    video.autoplay = true;
+
     // Set some optional attributes, like width and height
     video.width = 640;   // You can adjust this value
     video.height = 480;  // You can adjust this value

@@ -14,15 +14,14 @@ fun conversationalPrompt(): State = state(Init) {
     onEntry {
         if (currentSet.kws.size == 0) {
             random(
-                {call(cl.customAsk("Waar zal ik naar zoeken?"))},
-                {call(cl.customAsk("Welk onderwerp zullen we naar zoeken?"))}
+                { call(cl.customAsk("Waar zal ik naar zoeken?")) },
+                { call(cl.customAsk("Welk onderwerp zullen we naar zoeken?")) }
             )
-        }
-        else if (currentSet?.getSetSize() != 0 && currentSet.getSetSize()!! <= 3) goto(conversationalResult())
+        } else if (currentSet?.getSetSize() != 0 && currentSet.getSetSize()!! <= 3) goto(conversationalResult())
         else if (currentSet.cameFromSuggestion) {
-            random (
-                {call(cl.customAsk("Zit daar een onderwerp tussen dat je interessant lijkt? Zo ja welke?"))},
-                {call(cl.customAsk("Zit daar iets interessants tussen?"))}
+            random(
+                { call(cl.customAsk("Zit daar een onderwerp tussen dat je interessant lijkt?")) },
+                { call(cl.customAsk("Zit daar iets interessants tussen?")) }
             )
             //currentSet.cameFromSuggestion = false
         } else {
@@ -32,8 +31,8 @@ fun conversationalPrompt(): State = state(Init) {
                 println(currentSet.suggestionCounter)
             }
             random(
-                {call(cl.customAsk("wat lijken je verder interessanten onderwerpen in een filmpje over ${currentSet.getHumanReadableLabels()}?"))},
-                {call(cl.customAsk("Waar moet het verder over gaan?"))}
+                { call(cl.customAsk("Wat lijken je verder interessanten onderwerpen in een filmpje over ${currentSet.getHumanReadableLabels()}?")) },
+                { call(cl.customAsk("Waar moet het verder over gaan?")) }
             )
 
         }
@@ -82,7 +81,10 @@ fun conversationalPrompt(): State = state(Init) {
         println("@@@ Found ${len} video results")
         if (len == 0) goto(conversationalResult())
         else if (len!! <= 3) goto(conversationalResult())
-        call(cl.customSay("ik heb ${getQuantifyWord(len)} filmpjes over ${currentSet.getHumanReadableLabels()}"))
+        random(
+            { call(cl.customSay("Ik heb ${getQuantifyWord(len)} filmpjes gevonden over ${currentSet.getHumanReadableLabels()}")) },
+            { call(cl.customSay("Ik heb ${getQuantifyWord(len)} veel filmpjes gevonden.")) }
+        )
         goto(conversationalPrompt())
     }
 
@@ -130,16 +132,18 @@ fun askSuggest(same: Boolean = false): State = state(Init) {
         }
 
         random(
-            {call(
+            {
+                call(
 
-            cl.customSay(
-                "Ik heb wel een suggestie. "//<break time=\"0.3s\"/>"
-                        + "De filmpjes over ${currentSet.getHumanReadableLabels()}, gaan verder over bijvoorbeeld ${
-                    concatStrings(sortedList)
-                }"
-            )
-        )},
-            {call(cl.customSay("De filmpjes gaan ook over bijvoorbeeld ${concatStrings(sortedList)}"))}
+                    cl.customSay(
+                        "Ik heb wel een suggestie. "//<break time=\"0.3s\"/>"
+                                + "De filmpjes over ${currentSet.getHumanReadableLabels()}, gaan verder over bijvoorbeeld ${
+                            concatStrings(sortedList)
+                        }"
+                    )
+                )
+            },
+            { call(cl.customSay("De filmpjes gaan ook over bijvoorbeeld ${concatStrings(sortedList)}")) }
         )
         currentSet.cameFromSuggestion = true
         goto(conversationalPrompt())
@@ -235,18 +239,17 @@ fun slowMatchingResponse(done: Boolean): State = state(Init) {
     onEntry {
         println("##### in slow matching response")
 
-        if(!done) {
+        if (!done) {
             furhat.gesture(Gestures.Smile)
             call(cl.customSay("Oke, Even zoeken hoor!"))
             furhat.gesture(Gestures.CloseEyes())
             furhat.gesture(Gestures.Thoughtful(2.0, 3.0), async = true)
             furhat.ledStrip.solid(java.awt.Color.BLUE)
-        }
-        else{
+        } else {
             furhat.gesture(Gestures.OpenEyes())
-            furhat.ledStrip.solid(java.awt.Color(0,0,10))
+            furhat.ledStrip.solid(java.awt.Color(0, 0, 10))
         }
-            furhat.gesture(Gestures.Smile)
+        furhat.gesture(Gestures.Smile)
         terminate()
     }
 

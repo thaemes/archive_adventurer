@@ -13,7 +13,7 @@ const val KEYBERTPORT = 12222
 const val KEYBERTIP = "localhost"
 
 
-const val MATCHING_SERVER_IP = "10.150.24.170"//"10.150.24.129"
+const val MATCHING_SERVER_IP = "127.0.0.1" //"10.150.24.170"//"10.150.24.129"
 const val MATCHING_SERVER_PORT = 12223
 
 // BEELD & GELUID Config

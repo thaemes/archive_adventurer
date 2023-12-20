@@ -185,8 +185,7 @@ fun askToWatch(): State = state(Init) {
     onResponse<Number> {
         call(cl.customResponse(it.text))
         call(cl.customSay("oke, leuk! "))
-        val number: Int
-        number = when (it.intent.value?.toInt()) {
+        val number: Int = when (it.intent.value?.toInt()) {
             -2 -> (currentSet.getSetSize()?.toInt()?.minus(2)!!)
             -1 -> (currentSet.getSetSize()?.toInt()?.minus(1)!!)
             else -> it.intent.value?.toInt()!! - 1
@@ -232,15 +231,23 @@ fun askToWatch(): State = state(Init) {
 //    }
 }
 
-fun slowMatchingResponse(): State = state(Init) {
+fun slowMatchingResponse(done: Boolean): State = state(Init) {
     onEntry {
         println("##### in slow matching response")
-        furhat.gesture(Gestures.Smile)
-        call(cl.customSay("Oke, Even zoeken hoor!"))
-        furhat.gesture(Gestures.CloseEyes())
-        furhat.gesture(Gestures.Thoughtful(2.0, 3.0), async = false)
-        furhat.gesture(Gestures.OpenEyes())
-        furhat.gesture(Gestures.Smile)
+
+        if(!done) {
+            furhat.gesture(Gestures.Smile)
+            call(cl.customSay("Oke, Even zoeken hoor!"))
+            furhat.gesture(Gestures.CloseEyes())
+            furhat.gesture(Gestures.Thoughtful(2.0, 3.0), async = true)
+            furhat.ledStrip.solid(java.awt.Color.BLUE)
+        }
+        else{
+            furhat.gesture(Gestures.OpenEyes())
+            furhat.ledStrip.solid(java.awt.Color(0,0,10))
+        }
+            furhat.gesture(Gestures.Smile)
         terminate()
     }
+
 }

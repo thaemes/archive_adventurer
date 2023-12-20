@@ -1,5 +1,7 @@
 import FurhatGUI from 'furhat-gui'
 let reactions = {};
+let age = null;
+
 let currentlyEditingMessageId = null;
 let isEmojiPickerOpen = false;
 //const emojiList = ['😀', '😂', '😊', '😎', '😜', '😍', '😘', '🥳', '👍', '👎'];
@@ -54,7 +56,9 @@ function displayChatReactMode(input) {
 
     document.getElementById('videoContainer').innerHTML = '';
     document.getElementById('chatContainer').innerHTML = '';
-
+    console.log("ran displaychatreactmode");
+    reactions = {};
+    age = 999;
     addMessagesToDOM(input)
 
     if (!document.getElementById("readyButton")) {
@@ -163,10 +167,9 @@ function openEmojiPicker(messageId) {//, existingReaction = '') {
     // Apply blur to other elements
     const allMessages = document.querySelectorAll('.otherBubble, .ownBubble, .inlineIcon, .inlineContainer.own, .readyButton');
     allMessages.forEach(message => {
-        console.log("messageId: "+messageId +"    message.id: "+message.id)
         if (message.id != "" && message.id != messageId ) {
             message.classList.add('blur');
-        } else {console.log("no blur because: " + message.id )}
+        }
     });
     ///// END of blur CODE
 
@@ -361,6 +364,7 @@ function updateSingleReaction(messageId) {
 function displayAgePanel() {
     // Check if the age panel is already visible, if so, do nothing
     if (agePanelVisible) {
+        console.log("AGE PANEL ALREADY VISIBLE");
         return;
     }
 
@@ -406,15 +410,17 @@ function displayAgePanel() {
 
     // Add event listener for the confirm button
     confirmButton.addEventListener('click', () => {
-        const ageValue = document.getElementById('ageInput').value;
-        if (!isNaN(ageValue) && ageValue >= 0) {
-            // Age is valid, include it in reactions and hide the age panel
-            reactions['age'] = ageValue;
-            overlayContainer.style.display = 'none'; // Hide the overlay
+        var ageValue = document.getElementById("ageInput").value;
+        if (!isNaN(ageValue) && ageValue >= 0) { /// NAN CHECK NOT WORKIGN IN FIREFOX
+            // Age is valid, store it and hide the age panel
+            age = ageValue;
+            overlayContainer.style.display = 'none';
             agePanelVisible = false;
+            agePanelContainer.innerHTML = '';
             exportReactions();
         } else {
             // Invalid age, show an error message (you can customize this)
+            console.log('invalid age');
             alert("Gebruik een nummer");
         }
     });
@@ -429,8 +435,13 @@ function displayAgePanel() {
 
 
 function exportReactions() {
-    console.log("readyButton pressed");
-    const jsonReactions = JSON.stringify(reactions);
+    console.log("Confirm pressed",age);
+    const jsonReactions = JSON.stringify({
+        reactions: reactions,
+        age: age // Include the age in the data
+    });
+
+    console.log("LAATSTE AGE: ", age);
 
     furhat.send({
         event_name: "ClickButton",
@@ -438,6 +449,8 @@ function exportReactions() {
     })
     console.log(jsonReactions);
 }
+
+
 
 
 // toggle the blur class on the body

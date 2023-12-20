@@ -32,8 +32,9 @@ console.log("i am loaded")
 
 // Small update required: close the ready button (code might be available on the mac):
 function displayVideoMode(input) {
-
+    //if(input.)
     document.getElementById('chatContainer').innerHTML = '';
+    if (document.getElementById("agePanelContainer")) {document.getElementById("agePanelContainer").innerHTML = '';}
     if (document.getElementById("readyButton")) {document.getElementById("readyButtonContainer").innerHTML = '';}
 
     // Create a new video element
@@ -55,12 +56,12 @@ function displayVideoMode(input) {
 }
 
 function displayChatReactMode(input) {
-
     document.getElementById('videoContainer').innerHTML = '';
-    document.getElementById('chatContainer').innerHTML = '';
+    //document.getElementById('videoContainer').outerHTML = '';
+    //document.getElementById('chatContainer').innerHTML = '';
+    if(!document.getElementById('chatContainer')){document}
     console.log("ran displaychatreactmode");
     reactions = {};
-    age = 999;
     addMessagesToDOM(input)
 
     if (!document.getElementById("readyButton")) {
@@ -292,7 +293,6 @@ function closeEmojiPicker() {
     isEmojiPickerOpen = false;
 }
 
-
 function selectEmoji(emoji) {
     const messageId = document.getElementById('emojiPicker').dataset.messageId;
     const emojiContainer = document.querySelector('.emojiContainer');
@@ -360,8 +360,6 @@ function updateSingleReaction(messageId) {
         }
     }
 }
-
-
 
 function displayAgePanel() {
     // Check if the age panel is already visible, if so, do nothing

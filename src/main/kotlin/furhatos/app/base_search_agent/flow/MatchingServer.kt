@@ -11,14 +11,20 @@ class MatchingServer {
     lateinit var socket: Socket
     lateinit var writer: BufferedWriter
     lateinit var reader: BufferedReader
+    var isConnected = false
 
     fun close() {
-        try {
-            matchServ.writer.close()
-            matchServ.reader.close()
-            matchServ.socket.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
+        if (!matchServ.isConnected) {
+            println("Tried disconnecting from Match server, but was not connected.")
+        } else {
+            try {
+                matchServ.writer.close()
+                matchServ.reader.close()
+                matchServ.socket.close()
+                println("closed connection to matching server")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }
@@ -29,8 +35,11 @@ fun connectMatchServ(): State = state(Init) {
             matchServ.socket = Socket(MATCHING_SERVER_IP, MATCHING_SERVER_PORT)
             matchServ.writer = BufferedWriter(OutputStreamWriter(matchServ.socket.getOutputStream()))
             matchServ.reader = BufferedReader(InputStreamReader(matchServ.socket.getInputStream()))
+            matchServ.isConnected = true
+            println("Connected to Matching server")
         } catch (e: Exception) {
-            e.printStackTrace()
+            println("ERROR connecting to Matching server")
+            //e.printStackTrace()
         }
     }
 }
@@ -38,7 +47,14 @@ fun connectMatchServ(): State = state(Init) {
 fun extractMatchServ(incoming: String?): State = state(Init) {
     onEntry {
         println("Attempting extraction")
-
+        if (!matchServ.isConnected) {
+            println("Tried extraction, but the matchserv was not connected")
+            terminate()
+        }
+        if (incoming == null) {
+            println("matching serv. incoming was null")
+            terminate()
+        }
         try {
             // Send data to the server
             matchServ.writer.write(incoming)
@@ -46,7 +62,7 @@ fun extractMatchServ(incoming: String?): State = state(Init) {
             matchServ.writer.flush()
         } catch (e: Exception) {
             e.printStackTrace()
-            terminate("".toString())
+            terminate("")
         }
         try {
             // Read response from the server
@@ -62,16 +78,16 @@ fun extractMatchServ(incoming: String?): State = state(Init) {
                     val secondResponse = matchServ.reader.readLine() ?: ""
                     println("Received second response: $secondResponse")
                     call(slowMatchingResponse(true))
-                    terminate(secondResponse.toString())
+                    terminate(secondResponse)
                 }
-                terminate(rec.toString())
+                terminate(rec)
             } else {
                 println("Received an empty response")
-                terminate("".toString())
+                terminate("")
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            terminate("".toString())
+            terminate("")
         }
     }
 }

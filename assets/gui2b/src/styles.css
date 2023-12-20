@@ -6,6 +6,11 @@ body {
   background-color: #f1f1f1;
 }
 
+#chatContainer {
+   padding: 40px;
+   font-size: 28px;
+}
+
 .blur {
     filter: blur(4px) !important; /* Adjust the blur intensity as needed */
     opacity: 0.5;
@@ -16,6 +21,7 @@ body {
   /* Add these styles for the input field */
   width: 100%;
   padding: 10px;
+  font-size: 28px;
   margin-bottom: 15px;
   box-sizing: border-box;
 }
@@ -46,28 +52,26 @@ body {
   filter: saturate(70%);
 }
 
+
 .ownBubble {
+background-color: #b99071;
+}
+
+.otherBubble {
+  background-color: #7191b9;
+}
+
+.ownBubble, .otherBubble {
   min-width: 60px;
   max-width: 400px;
   padding: 14px 18px;
   margin: 6px 8px;
-  background-color: #b99071;
   border-radius: 16px 16px 0 16px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.12);
   position: relative;
 }
 
-.otherBubble {
-  min-width: 60px;
-  max-width: 400px;
-  padding: 14px 18px;
-  margin: 6px 8px;
-  background-color: #7191b9;
-  border-radius: 16px 16px 16px 0;
-  box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.12);
-  /* border: 1px solid #54788e; */
-  position: relative;
-}
+
 
 .emojiPicker {
   display: none;
@@ -88,6 +92,7 @@ body {
    width: 90%;
    height: 30px;
    padding: 3px;
+   font-size: 28px;
    border-radius: 2px;
 }
 
@@ -115,7 +120,7 @@ body {
   padding: 8px 16px;
   background-color: #1779c0;
   color: #fff;
-  font-size: 18px;
+  font-size: 24px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -126,7 +131,7 @@ body {
   margin-top: 10px;
   padding: 8px 16px;
   background-color: #c0171787;
-  font-size: 18px;
+  font-size: 24px;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -155,7 +160,7 @@ body {
 
 span.own,
 span.other {
-  font-size: 14px;
+  font-size: 20px;
   color: grey;
 }
 
@@ -163,7 +168,7 @@ span.other {
   position: absolute;
   top: -30%;
   right: -20px;
-  font-size: 32px;
+  font-size: 42px;
   font-weight: bold;
   text-shadow: 2px 2px 6px rgba(58, 75, 95, 0.578);
   /* rgba(255, 255, 255, 0.546); */
@@ -180,7 +185,6 @@ span.other {
 
 /* Overlay styles */
 #overlayContainer {
-
     position: fixed;
     display: block;
     top: 0;
@@ -196,6 +200,7 @@ span.other {
 
 /* Age panel styles */
 #agePanelContainer {
+    font-size: 20pt;
     background-color: #fff; /* Background color for the age panel */
     margin: auto;
     margin-top: 60px;
@@ -220,17 +225,23 @@ span.other {
     border: 1px solid #ccc;
     border-radius: 5px;
     margin: 10px;
+    font-size: 24pt;
 }
 
+
+/*#videoContainer {
+  width: 90%; *//* Adjust the width as needed *//*
+  margin: 0 auto; *//* Center the container horizontally *//*
+  position: relative;
+  padding-top: 56.25%; *//* 16:9 aspect ratio (9 / 16 * 100%) *//*
+}*/
 
 #videoContainer {
-  width: 90%; /* Adjust the width as needed */
-  margin: 0 auto; /* Center the container horizontally */
-  position: relative;
-  padding-top: 56.25%; /* 16:9 aspect ratio (9 / 16 * 100%) */
+   background-color: #000;
 }
 
-#videoContainer video {
+video {
+  background-color: #000;
   position: absolute;
   top: 0;
   left: 0;

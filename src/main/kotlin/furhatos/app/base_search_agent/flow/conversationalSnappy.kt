@@ -57,8 +57,8 @@ fun conversationalPromptSnap(): State = state(Init) {
     this.onResponse {
         call(cl.customResponse(it.text))
         currentSet.kws_prev = currentSet.kws
-        var newKWs = call(extractMatchServ(it.text.lowercase()))
-
+        var newKWs = call(extractMatchServ(it.text.lowercase(), false))
+        println("** just got newKWs:$newKWs")
         currentSet.loadDataFromJson(newKWs.toString())
 
         if (currentSet.kws.size == 0) {
@@ -66,6 +66,12 @@ fun conversationalPromptSnap(): State = state(Init) {
             call(cl.customSay("Daar zitten geen onderwerpen in die ik kenn. "))
             if (currentSet.cameFromSuggestion) goto(askSuggestSnap(same = true))
             else goto(conversationalPromptSnap())
+        }
+
+        if(currentSet.cameFromSuggestion) {
+            val match = findClosestMatch(currentSet.suggestedLastTurn , it.text.lowercase() )
+            val newKw = call(extractMatchServ(match, true))
+            currentSet.loadDataFromJson(newKw.toString())
         }
 
         if (!currentSet.kws.all { it == null }) {
@@ -77,7 +83,7 @@ fun conversationalPromptSnap(): State = state(Init) {
         if (len == 0) goto(quickResult())
         else if (len!! <= 3) goto(quickResult())
         random(
-            { call(cl.customSay("Ik heb ${getQuantifyWord(len)} filmpjes gevonden over ${currentSet.getHumanReadableLabels()}")) },
+            //{ call(cl.customSay("Ik heb ${getQuantifyWord(len)} filmpjes gevonden over ${currentSet.getHumanReadableLabels()}")) },
             { call(cl.customSay("Ik heb ${getQuantifyWord(len)} filmpjes gevonden.")) }
         )
         goto(conversationalPromptSnap())
@@ -98,6 +104,7 @@ fun askSuggestSnap(same: Boolean = false): State = state(Init) {
             println("triggered suggestion while empty gtaa list!!!")
             call(cl.customAsk("Wat denk je van tijgers, of architectuur, of bananen?"))
             currentSet.cameFromSuggestion = true
+            currentSet.suggestedLastTurn = mutableListOf("tijgers", "architectuur", "bananen")
             goto(conversationalPromptSnap())
         }
 
@@ -128,8 +135,8 @@ fun askSuggestSnap(same: Boolean = false): State = state(Init) {
         } else {
             println(currentSet.suggestedLastTurn.toString())
             sortedList = currentSet.suggestedLastTurn
-
         }
+        currentSet.suggestedLastTurn = sortedList.toMutableList()  /// DEZE ADDED
         call(cl.customSay("De filmpjes gaan ook over bijvoorbeeld ${concatStrings(sortedList)}"))
         currentSet.cameFromSuggestion = true
         goto(conversationalPromptSnap())
@@ -150,7 +157,10 @@ fun suggestionResponse(): State = state(Init) {
 
 fun quickResult(): State = state(Init) {
     onEntry {
-        call(cl.customSay("Hier is het filmpje!.")); //een filmpje over ${currentSet.getHumanReadableLabels()}"))
+        random(
+            {call(cl.customSay("Hier is een filmpje!"))},
+            {call(cl.customSay("Laten we kijken!"))}
+        )
         call(watchVideo(currentSet.getRandomVideo()?.link))
     }
 }

@@ -122,6 +122,20 @@ fun getGTAAPartial(input: String?): Pair<String?, JSONObject?> {
     return results
 }
 
+fun getPotentialSuggestions( inputKws: List<ThesaurusKeyword>) : List<ThesaurusKeyword>? {
+    var gtaas = inputKws.mapNotNull { it.gtaa }
+    val query = sparqlQueryLinkedTopicsMulti(gtaas)
+    val resultJson: JSONObject?
+
+    val headers = mapOf("Accept" to "application/sparql-results+json;q=1.0")
+    try {
+        resultJson = JSONObject(post(bg_kg_url, data = mapOf("query" to query), headers = headers).text)
+    } catch (e: UnknownHostException) {
+        println("... Unknown host exception for B&G Communica API")
+        return null
+    }
+  return null
+}
 
 fun extractGTAAMulti2(res: List<Pair<String?, JSONObject?>>?): List<ThesaurusKeyword?>? {
     if (res == null) return null
@@ -141,3 +155,10 @@ fun extractGTAAMulti2(res: List<Pair<String?, JSONObject?>>?): List<ThesaurusKey
     }
     return results
 }
+
+
+/*
+* 1 functie: videos vanaf keyword lijst
+* 1 functie: haal extra keywords van huidig keyword
+*
+* */

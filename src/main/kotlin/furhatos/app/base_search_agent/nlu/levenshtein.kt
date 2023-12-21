@@ -27,6 +27,9 @@ fun levenshtein(lhs: CharSequence, rhs: CharSequence): Int {
     return cost[lhsLength]
 }
 
-fun findClosestMatch(words: Set<String>, input: String): String {
-    return words.minByOrNull { levenshtein(it, input) } ?: ""
+fun findClosestMatch(words: List<String>, input: String): String {
+    println("Levenshtein got: "+words+" and input: "+input)
+    val res = words.minByOrNull { levenshtein(it, input) } ?: ""
+    println("and concluded the match was: "+res)
+    return res
 }

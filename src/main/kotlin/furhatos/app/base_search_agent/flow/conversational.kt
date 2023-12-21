@@ -9,7 +9,7 @@ import org.json.JSONObject
 
 var currentSet = KeywordCollection()
 var cl = CustomLogger()
-
+/*
 fun conversationalPrompt(): State = state(Init) {
     onEntry {
         if (currentSet.kws.size == 0) {
@@ -241,13 +241,16 @@ fun askToWatch(): State = state(Init) {
 //    }
 }
 
-fun slowMatchingResponse(done: Boolean): State = state(Init) {
+
+ */
+
+fun slowMatchingResponse(done: Boolean, quiet: Boolean): State = state(Init) {
     onEntry {
         println("##### in slow matching response")
 
         if (!done) {
             furhat.gesture(Gestures.Smile)
-            call(cl.customSay("Oke, Even zoeken hoor!"))
+            if(!quiet) call(cl.customSay("Oke, Even zoeken hoor!"))
             furhat.gesture(Gestures.CloseEyes())
             furhat.gesture(Gestures.Thoughtful(2.0, 3.0), async = true)
             furhat.ledStrip.solid(java.awt.Color.BLUE)

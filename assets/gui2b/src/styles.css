@@ -54,11 +54,13 @@ body {
 
 
 .ownBubble {
-background-color: #b99071;
+  background-color: #b99071;
+  border-radius: 16px 16px 0 16px;
 }
 
 .otherBubble {
   background-color: #7191b9;
+  border-radius: 16px 16px 16px 0px;
 }
 
 .ownBubble, .otherBubble {
@@ -66,7 +68,7 @@ background-color: #b99071;
   max-width: 400px;
   padding: 14px 18px;
   margin: 6px 8px;
-  border-radius: 16px 16px 0 16px;
+
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.12);
   position: relative;
 }

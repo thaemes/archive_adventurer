@@ -1,6 +1,5 @@
 package furhatos.app.base_search_agent.nlu
 
-import furhatos.app.base_search_agent.flow.currentSet
 import furhatos.app.base_search_agent.flow.searchLinkedAPIMulti
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
@@ -11,7 +10,8 @@ class StateTracker {
 
     var keywordsCurrent: MutableList<ThesaurusKeyword> = mutableListOf()
     var keywordsLast: MutableList<ThesaurusKeyword> = mutableListOf()
-    var resultSetCurrentKeywords: JSONObject? = null
+    private var resultSetCurrentJSON: JSONObject? = null
+    var resultSetCurrent: List<Video?> = listOf()
     var suggestionCounter = 0
     var suggestedBefore: MutableList<String> = mutableListOf()
     var suggestedLastTurn: MutableList<String> = mutableListOf()
@@ -35,9 +35,7 @@ class StateTracker {
     }
 
     fun getSetSize(): Int {
-        val resultsArray = this.resultSetCurrentKeywords?.getJSONObject("results")?.getJSONArray("bindings")
-        if (resultsArray == null) return 0
-        return resultsArray.length()
+        return resultSetCurrent.size
     }
 
     fun getLabels(): List<String?> {
@@ -56,16 +54,13 @@ class StateTracker {
         return concatStrings(this.getLabels())
     }
 
-    fun updateResultsWithCurrentKeywords() {
-        this.resultSetCurrentKeywords = searchLinkedAPIMulti(this.getGTAAs())
-    }
-
-    fun getResultsWithCurrentKeywords(): List<Video>? {
-        val resultsArray = this.resultSetCurrentKeywords?.getJSONObject("results")?.getJSONArray("bindings")
+    fun updateResults()  {
+        var results = searchLinkedAPIMulti(this.getGTAAs())
+        val resultsArray = results?.getJSONObject("results")?.getJSONArray("bindings")
         val videoList = mutableListOf<Video>()
-        if (resultsArray == null) return null
+        //if (resultsArray == null) return null
 
-        for (i in 0 until resultsArray.length()) {
+        for (i in 0 until resultsArray?.length()!!) {
             val resultObj = resultsArray.getJSONObject(i)
             val title = resultObj.getJSONObject("title").getString("value").toLowerCase()
             val contentUrl = resultObj.getJSONObject("content_url").getString("value")
@@ -74,14 +69,12 @@ class StateTracker {
             video.title = title
             video.link = contentUrl
             videoList.add(video)
-
         }
-        return videoList
+        resultSetCurrent = videoList
     }
 
     fun getRandomVideo(): Video? {
-        val videos = getResultsWithCurrentKeywords()
-        return videos?.let {
+        return this.resultSetCurrent?.let {
             if (it.isNotEmpty()) it.random() else null
         }
     }
@@ -92,13 +85,13 @@ class StateTracker {
     }
     fun revertKeywords() {
         this.keywordsCurrent = this.keywordsLast.toList().toMutableList()
-        this.updateResultsWithCurrentKeywords()
+        //this.updateResultsWithCurrentKeywords()
     }
 
     fun resetState() {
         this.keywordsLast = mutableListOf()
         this.keywordsLast = mutableListOf()
-        this.resultSetCurrentKeywords = null
+        this.resultSetCurrentJSON = null
         this.suggestedBefore = mutableListOf()
         this.suggestedLastTurn = mutableListOf()
         this.suggestionCounter = 0

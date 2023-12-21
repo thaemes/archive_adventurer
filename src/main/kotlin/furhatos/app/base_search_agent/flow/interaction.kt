@@ -37,6 +37,7 @@ val GUIConnected = state(NoGUI) {
     onEntry {
         // Pass data to GUI
         println("A GUI connected")
+        connectMatchServ()
         goto(Init)
     }
 
@@ -69,8 +70,12 @@ val Init: State = state(GUIConnected) {
     onReentry {
     }
 
-    onButton("Start Conversational!", color = Color.Green) {
-        goto(conversationalPrompt())
+//    onButton("Start Conversational!", color = Color.Green) {
+//        goto(conversationalPrompt())
+//    }
+
+    onButton("try simplified"){
+        goto(conversationalSimplified())
     }
 
     onButton("Start snappy") {
@@ -107,7 +112,7 @@ val Init: State = state(GUIConnected) {
     }
 
     onButton("Test matching server") {
-        var res = call(extractMatchServ("bananen"))
+        var res = call(extractMatchServ("bananen", false))
         println(res)
     }
 
@@ -170,12 +175,11 @@ val Init: State = state(GUIConnected) {
     }
 
     onButton("test levenstein") {
-        val words = setOf("tentoonstellingen", "jonge dieren", "keuringen")
+        val words = listOf("tentoonstellingen", "jonge dieren", "keuringen")
         val input = "Ja die ene over de jonge dieren"
         val closestMatch = findClosestMatch(words, input)
         println("Closest match: $closestMatch")
     }
-
 }
 
 

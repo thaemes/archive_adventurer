@@ -44,7 +44,7 @@ fun connectMatchServ(): State = state(Init) {
     }
 }
 
-fun extractMatchServ(incoming: String?): State = state(Init) {
+fun extractMatchServ(incoming: String?, quiet: Boolean): State = state(Init) {
     onEntry {
         println("Attempting extraction")
         if (!matchServ.isConnected) {
@@ -73,11 +73,11 @@ fun extractMatchServ(incoming: String?): State = state(Init) {
                 // Check if the response is "Initiating slow matching"
                 if (rec.contains("!slow matching")) {
                     // Call your function for handling slow matching initiation
-                    call(slowMatchingResponse(false))
+                    call(slowMatchingResponse(false, quiet))
                     // Wait for the second response with the matches
                     val secondResponse = matchServ.reader.readLine() ?: ""
                     println("Received second response: $secondResponse")
-                    call(slowMatchingResponse(true))
+                    call(slowMatchingResponse(true, quiet))
                     terminate(secondResponse)
                 }
                 terminate(rec)

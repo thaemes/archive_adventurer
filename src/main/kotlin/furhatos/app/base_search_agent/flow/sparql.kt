@@ -22,7 +22,7 @@ fun sparqlNarrower(new: String, old: String): String {
     """
 }
 
-fun sparqlRelated (): String{
+fun sparqlRelated(): String {
     return """
 ASK {
     gtaa:28142 skos:related gtaa:28581
@@ -30,8 +30,8 @@ ASK {
         """
 }
 
-fun sparqlGTAARegex (input: String?) : String {
-    return pre+"""
+fun sparqlGTAARegex(input: String?): String {
+    return pre + """
         SELECT *
         WHERE {
         ?uri skos:prefLabel ?prefLabel FILTER regex(?prefLabel, "^${input}") .
@@ -72,6 +72,7 @@ WHERE {
 }      
         """ + post
 }
+
 fun sparqlQueryLinkedTopicsMulti(input: List<String?>): String {
     var valuesClause = ""
     var inlineClause = ""
@@ -84,7 +85,7 @@ fun sparqlQueryLinkedTopicsMulti(input: List<String?>): String {
     }
     filterClause = filterClause.removeSuffix("&&")
 
-    val q =  pre + """
+    val q = pre + """
 SELECT ?linked_abouts_label 
 WHERE {
   ${valuesClause}
@@ -115,3 +116,37 @@ fun sparqlGTAA(input: String?): String {
 """ + post
 }
 
+
+fun sparqlPossibleSuggestions(input: List<String>): String {
+    var valuesClause = ""
+    var inlineClause = ""
+    var filterClause = ""
+
+    for ((index, value) in input.withIndex()) {
+        valuesClause += "VALUES ?var$index {gtaa:$value}\n"
+        inlineClause += "sdo:about ?var$index ;"
+        filterClause += "?var$index != ?linked_abouts &&"
+    }
+    filterClause = filterClause.removeSuffix("&&")
+
+    val q = pre + """
+SELECT DISTINCT ?linked_abouts_label ?gtaa
+WHERE {
+  ${valuesClause}
+  ?item rdf:type sdo:Clip;
+      ${inlineClause}
+      (sdo:about) ?linked_abouts ;
+      sdo:name ?title ;
+      sdo:associatedMedia [
+      		sdo:encodingFormat ?encoding ;
+      		sdo:contentUrl ?content_url
+    	] .
+  ?linked_abouts skosxl:prefLabel/skosxl:literalForm ?linked_abouts_label .
+  ?linked_abouts skos:inScheme gtaa:Onderwerpen .
+  FILTER (${filterClause})
+  BIND(STRAFTER(STR(?linked_abouts), STR(gtaa:)) AS ?gtaa)
+}
+""" + post
+
+    return q
+}

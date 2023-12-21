@@ -12,6 +12,7 @@ import furhatos.util.Gender
 import furhatos.util.Language
 import org.json.JSONArray
 import org.json.JSONObject
+import sparqlPossibleSuggestions
 import java.io.File
 import java.io.FileWriter
 import java.io.BufferedWriter
@@ -172,6 +173,10 @@ val Init: State = state(GUIConnected) {
 
     onButton("trigger suggestion") {
         goto(askSuggestSnap())
+    }
+
+    onButton("get SPARQL new") {
+        println(sparqlPossibleSuggestions(listOf("28266", "27415")))
     }
 
     onButton("test levenstein") {

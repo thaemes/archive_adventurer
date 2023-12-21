@@ -7,6 +7,6 @@ import kotlinx.serialization.Serializable
 data class ThesaurusKeyword(
     @SerialName("gtaa") var gtaa: String?,
     @SerialName("label") var label: String?,
-    @SerialName("similarity_score") var similarityScore: Double
+    @SerialName("similarity_score") var similarityScore: Double//?
 )
 

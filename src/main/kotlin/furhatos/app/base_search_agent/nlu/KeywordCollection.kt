@@ -44,7 +44,6 @@ class KeywordCollection {
         if (resultsArray == null) return 0
         for (i in 0 until resultsArray.length()) {
             val resultObj = resultsArray.getJSONObject(i)
-
             val title = resultObj.getJSONObject("title").getString("value").toLowerCase()
             titlesSet.add(title)
         }

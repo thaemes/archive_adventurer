@@ -27,7 +27,7 @@ fun conversationalPromptSnap(): State = state(Init) {
                 println(currentSet.suggestionCounter)
             }
             random(
-                { call(cl.customAsk("Wat lijken je verder interessanten onderwerpen in een filmpje over ${currentSet.getHumanReadableLabels()}?")) },
+                //{ call(cl.customAsk("Wat lijken je verder interessanten onderwerpen in een filmpje over ${currentSet.getHumanReadableLabels()}?")) },
                 { call(cl.customAsk("Waar moet het verder over gaan?")) }
             )
         }
@@ -56,7 +56,7 @@ fun conversationalPromptSnap(): State = state(Init) {
 
     this.onResponse {
         call(cl.customResponse(it.text))
-        currentSet.kws_prev = currentSet.kws//.toList().toMutableList()
+        currentSet.kws_prev = currentSet.kws
         var newKWs = call(extractMatchServ(it.text.lowercase()))
 
         currentSet.loadDataFromJson(newKWs.toString())
@@ -117,7 +117,7 @@ fun askSuggestSnap(same: Boolean = false): State = state(Init) {
             if (sortedMap != null) {
                 sortedMap.entries.take(5).forEach { (word, count) -> println("   $word: $count") }
                 if (sortedMap.isEmpty()) {
-                    call(cl.customSay("Ik heb geen suggesties meer. Sorry."))
+                    //call(cl.customSay("Ik heb geen suggesties meer. Sorry."))
                     goto(quickResult())
                 }
             }
@@ -136,13 +136,21 @@ fun askSuggestSnap(same: Boolean = false): State = state(Init) {
     }
 }
 
-fun suggestionResponse() : State = state(Init) {
-
+fun suggestionResponse(): State = state(Init) {
+    onEntry {
+        random(
+            { call(cl.customAsk("Zit daar een onderwerp tussen dat je interessant lijkt?")) },
+            { call(cl.customAsk("Zit daar iets interessants tussen?")) }
+        )
+    }
+    onResponse {
+       // findClosestMatch()
+    }
 }
 
 fun quickResult(): State = state(Init) {
     onEntry {
-        call(cl.customSay("Hier is een filmpje over ${currentSet.getHumanReadableLabels()}"))
+        call(cl.customSay("Hier is het filmpje!.")); //een filmpje over ${currentSet.getHumanReadableLabels()}"))
         call(watchVideo(currentSet.getRandomVideo()?.link))
     }
 }

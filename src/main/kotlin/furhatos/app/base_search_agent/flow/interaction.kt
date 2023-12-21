@@ -64,7 +64,7 @@ val Init: State = state(GUIConnected) {
         furhat.param.noSpeechTimeout = 12000
         furhat.param.endSilTimeout = 2000
         furhat.attendAll()
-        //dialogLogger.startSession()
+        dialogLogger.startSession()
     }
     onReentry {
     }
@@ -183,7 +183,8 @@ fun watchVideo(link: String?) = state(Init) {
     onEntry {
         if (link == null) {
             println("%%% received empty video link!")
-            exit()
+            currentSet.stepBack()
+            goto(quickResult())
         } else {
             println("%%% Rec'd. video link: $link")
             send(DataDelivery(buttons = null, inputFields = null, messagesLog = null, videoUrl = listOf(link)))

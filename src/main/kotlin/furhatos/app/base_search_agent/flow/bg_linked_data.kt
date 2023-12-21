@@ -97,8 +97,6 @@ fun getGTAAMulti2(input: List<String>?): List<Pair<String?, JSONObject?>>? {
             } catch (e: UnknownHostException) {
                 println("... Unknown host exception for B&G linked data API")
             }
-
-
         }
     }
     return results

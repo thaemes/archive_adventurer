@@ -135,7 +135,6 @@ class Number : EnumEntity() {
 }
 
 
-
 class Ja : Intent() {
     override fun getExamples(Lang: Language): List<String> {
         return listOf(

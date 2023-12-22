@@ -130,7 +130,7 @@ fun sparqlPossibleSuggestions(input: List<String>): String {
     filterClause = filterClause.removeSuffix("&&")
 
     val q = pre + """
-SELECT DISTINCT ?linked_abouts_label ?gtaa
+SELECT ?linked_abouts_label ?gtaa
 WHERE {
   ${valuesClause}
   ?item rdf:type sdo:Clip;

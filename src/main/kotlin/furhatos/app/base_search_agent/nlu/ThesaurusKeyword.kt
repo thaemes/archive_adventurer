@@ -10,3 +10,7 @@ data class ThesaurusKeyword(
     @SerialName("similarity_score") var similarityScore: Double//?
 )
 
+class Keyword(
+    var gtaa: String,
+    var label: String
+)

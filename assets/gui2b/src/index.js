@@ -24,6 +24,13 @@ console.log("i am loaded")
             else if (data.videoUrl) {
                 displayVideoMode(data.videoUrl)
             }
+            else {
+                    document.getElementById('chatContainer').innerHTML = '';
+                    document.getElementById('videoContainer').innerHTML = '';
+                    if (document.getElementById("agePanelContainer")) {document.getElementById("agePanelContainer").innerHTML = '';}
+                    if (document.getElementById("readyButton")) {document.getElementById("readyButtonContainer").innerHTML = '';}
+                    console.log("got empty message");
+            }
         })
 
     })

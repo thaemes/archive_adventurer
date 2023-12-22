@@ -3,6 +3,7 @@ package furhatos.app.base_search_agent.flow
 import furhatos.app.base_search_agent.DataDelivery
 import furhatos.app.base_search_agent.PORT
 import furhatos.app.base_search_agent.SPEECH_DONE
+import furhatos.app.base_search_agent.nlu.ThesaurusKeyword
 import furhatos.app.base_search_agent.nlu.findClosestMatch
 import furhatos.event.senses.SenseSkillGUIConnected
 import furhatos.flow.kotlin.*
@@ -38,16 +39,18 @@ val GUIConnected = state(NoGUI) {
     onEntry {
         // Pass data to GUI
         println("A GUI connected")
-        connectMatchServ()
+        call(connectMatchServ())
         goto(Init)
     }
 
     onEvent(CLICK_BUTTON) {
         println("Rec'd annotated logs at furhat side: " + it.get("data"))
-        call(writeAnnotatedLog(it.get("data").toString()))
-        currentSet.reset() // added 19 Dec
-        call(cl.reset())   // added 19 Dec
-        currentSet.reset() // added 19 Dec
+        writeAnnotatedLog(it.get("data").toString())
+//        println("about to send ## ")
+//        currentSet.reset() // added 19 Dec
+//        call(cl.reset())   // added 19 Dec
+//        send(DataDelivery(buttons = null, inputFields = null, messagesLog = null, videoUrl = null))
+//        println("sent empty to GUI")
     }
 }
 
@@ -75,9 +78,9 @@ val Init: State = state(GUIConnected) {
 //        goto(conversationalPrompt())
 //    }
 
-    onButton("try simplified"){
-        goto(conversationalSimplified())
-    }
+//    onButton("try simplified"){
+//        goto(conversationalSimplified())
+//    }
 
     onButton("Start snappy") {
         goto(conversationalPromptSnap())
@@ -176,15 +179,17 @@ val Init: State = state(GUIConnected) {
     }
 
     onButton("get SPARQL new") {
-        println(sparqlPossibleSuggestions(listOf("28266", "27415")))
+        state.addKeyword(ThesaurusKeyword("28650", "onthullingen", 1.0))
+        state.addKeyword(ThesaurusKeyword("27753", "monumenten", 1.0))
+        call(simpleSuggest())
     }
 
-    onButton("test levenstein") {
-        val words = listOf("tentoonstellingen", "jonge dieren", "keuringen")
-        val input = "Ja die ene over de jonge dieren"
-        val closestMatch = findClosestMatch(words, input)
-        println("Closest match: $closestMatch")
-    }
+//    onButton("test levenstein") {
+//        val words = listOf("tentoonstellingen", "jonge dieren", "keuringen")
+//        val input = "Ja die ene over de jonge dieren"
+//        val closestMatch = findClosestMatch(words, input)
+//        println("Closest match: $closestMatch")
+//    }
 }
 
 
@@ -203,7 +208,7 @@ fun watchVideo(link: String?) = state(Init) {
     }
 }
 
-fun writeAnnotatedLog(input: String) = state(Init) {
+fun writeAnnotatedLog(input: String)  {
 
     try {
         // Create a File object with the given file path

@@ -9,6 +9,7 @@ import sparqlFilterVideos
 import sparqlGTAA
 import sparqlGTAARegex
 import sparqlNarrower
+import sparqlPossibleSuggestions
 import sparqlQueryLinkedTopicsMulti
 import java.net.UnknownHostException
 
@@ -122,9 +123,9 @@ fun getGTAAPartial(input: String?): Pair<String?, JSONObject?> {
     return results
 }
 
-fun getPotentialSuggestions( inputKws: List<ThesaurusKeyword>) : List<ThesaurusKeyword>? {
-    var gtaas = inputKws.mapNotNull { it.gtaa }
-    val query = sparqlQueryLinkedTopicsMulti(gtaas)
+fun getPotentialSuggestions(inputKws: List<ThesaurusKeyword>): List<ThesaurusKeyword>? {
+    val gtaas = inputKws.mapNotNull { it.gtaa }
+    val query = sparqlPossibleSuggestions(gtaas)
     val resultJson: JSONObject?
 
     val headers = mapOf("Accept" to "application/sparql-results+json;q=1.0")
@@ -134,7 +135,17 @@ fun getPotentialSuggestions( inputKws: List<ThesaurusKeyword>) : List<ThesaurusK
         println("... Unknown host exception for B&G Communica API")
         return null
     }
-  return null
+
+    val bindings = resultJson.getJSONObject("results").getJSONArray("bindings")
+
+    val keywords = mutableListOf<ThesaurusKeyword>()
+    for (i in 0 until bindings.length()) {
+        val binding = bindings.getJSONObject(i)
+        val label = binding.getJSONObject("linked_abouts_label").getString("value")
+        val gtaa = binding.getJSONObject("gtaa").getString("value")
+        keywords.add(ThesaurusKeyword(gtaa, label, 1.0))
+    }
+    return keywords.distinctBy { it.gtaa to it.label }
 }
 
 fun extractGTAAMulti2(res: List<Pair<String?, JSONObject?>>?): List<ThesaurusKeyword?>? {
@@ -148,7 +159,7 @@ fun extractGTAAMulti2(res: List<Pair<String?, JSONObject?>>?): List<ThesaurusKey
                 ?.getString("value")?.substringAfterLast("/")
             println("... Succesfully extracted a GTAA: ${out}")
             println("... result:" + res[i].toString())
-            results.add(ThesaurusKeyword(out, res[i].first, 0.0), )
+            results.add(ThesaurusKeyword(out, res[i].first, 0.0))
         } catch (e: Exception) {
             println("... JSON extraction of one GTAA Failed")
         }

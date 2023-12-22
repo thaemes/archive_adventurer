@@ -28,10 +28,9 @@ fun conversationalSimplified(): State = state(Init) {
             )
         } else if (state.keywordsCurrent.size >= 2) goto(simpleResult())
         else if (!state.madeProgress()) {
-                state.suggestionCounter++
-                if (state.suggestionCounter >= 1) goto(simpleSuggest())
-            }
-        else {
+            state.suggestionCounter++
+            if (state.suggestionCounter >= 1) goto(simpleSuggest())
+        } else {
             random(
                 { call(cl.customAsk("Waar moet het verder over gaan?")) }
             )
@@ -58,41 +57,55 @@ fun conversationalSimplified(): State = state(Init) {
         var newKeywords = call(extractMatchServ(it.text.lowercase(), false))
         state.processNewKeywords(newKeywords.toString())
 
-        if(state.keywordsCurrent.size == 0) {
+        if (state.keywordsCurrent.size == 0) {
             call(cl.customSay("Ik verstond ${it.text}. Daar zitten geen onderwerpen in die ik kenn. "))
         } else {
             state.updateResults()
             state.resultSetCurrent
         }
-        if(state.resultSetCurrent.size <=3 ) {
+        if (state.resultSetCurrent.size <= 3) {
             goto(simpleResult())
-        }
-        else {
+        } else {
             reentry()
         }
     }
 }
 
-fun simpleSuggest(): State = state(Init){
-    onEntry{
+fun simpleSuggest(): State = state(Init) {
+    onEntry {
         println("### Entered simpleSuggest()")
-        //var potentialAdditionalKeywords = extractGTAAMulti2(getPotentialSuggestions(state.keywordsCurrent))
-//        val groupedByCount = potentialOtherGTAAs?.groupingBy { it }?.eachCount()
-//        sortedList =
-//            groupedByCount?.toList()?.sortedByDescending { (_, count) -> count }?.map { it.first }?.take(3)
-//                ?: emptyList()
-//        val sortedMap = groupedByCount?.toList()?.sortedByDescending { (_, count) -> count }?.toMap()
+        var potentialAdditionalKeywords = getPotentialSuggestions(state.keywordsCurrent)
+        var suggestionKeywords: MutableList<ThesaurusKeyword>
+        potentialAdditionalKeywords?.toMutableList()?.removeAll(state.suggestedBefore)
 
+        if (potentialAdditionalKeywords != null) {
+            if (potentialAdditionalKeywords.size >= 3) {
+                suggestionKeywords = potentialAdditionalKeywords.take(3).toMutableList()
+            } else {
+                suggestionKeywords = potentialAdditionalKeywords.toMutableList()
+            }
+            state.suggestedLastTurn = suggestionKeywords.toMutableList()
+            state.suggestedBefore.addAll(suggestionKeywords)
+
+        //call(cl.customSay("De videos gaan verder over ${concatStrings(suggestionKeywords)}"))
+        }
+        //var suggestions = potentialAdditionalKeywords[]
         //call(cl.customSay(potentialAdditionalKeywords.toString()))
     }
 }
 
-fun handleSimpleSuggestResponse(){}
 
-fun simpleResult():State = state(Init) {
+fun selectSimpleSuggestKeywords () {
+
+}
+
+fun handleSimpleSuggestResponse() {}
+
+fun simpleResult(): State = state(Init) {
     onEntry {
         println("### Entered simpleResult()")
         call(cl.customSay("Hier is het filmpje!.")); //een filmpje over ${currentSet.getHumanReadableLabels()}"))
         call(watchVideo(state.getRandomVideo()?.link))
     }
 }
+

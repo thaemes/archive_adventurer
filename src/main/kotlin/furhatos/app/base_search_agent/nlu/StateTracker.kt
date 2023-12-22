@@ -13,8 +13,8 @@ class StateTracker {
     private var resultSetCurrentJSON: JSONObject? = null
     var resultSetCurrent: List<Video?> = listOf()
     var suggestionCounter = 0
-    var suggestedBefore: MutableList<String> = mutableListOf()
-    var suggestedLastTurn: MutableList<String> = mutableListOf()
+    var suggestedBefore: MutableList<ThesaurusKeyword> = mutableListOf()
+    var suggestedLastTurn: MutableList<ThesaurusKeyword> = mutableListOf()
 
     fun addKeyword(inputKw: ThesaurusKeyword) {
         if (!keywordsCurrent.contains(inputKw)) {

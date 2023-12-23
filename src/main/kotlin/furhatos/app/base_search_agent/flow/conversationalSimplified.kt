@@ -1,11 +1,11 @@
 package furhatos.app.base_search_agent.flow
 
 import furhatos.app.base_search_agent.nlu.*
-import furhatos.app.base_search_agent.CustomLogger
 import furhatos.app.base_search_agent.nlu.StateTracker
 import furhatos.app.base_search_agent.nlu.doNotKnow
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
+import furhatos.nlu.Response
 
 
 /*
@@ -17,27 +17,40 @@ OVERAL waar video, List<Video>
 
 
 var state = StateTracker()
+const val suggestThreshold = 1
+const val resultThreshold = 2
+
+
 
 fun conversationalSimplified(): State = state(Init) {
     onEntry {
         println("### Entered conversationalSimplified()")
+
         if (state.keywordsCurrent.size == 0) {
+            //raise(call(cl.customAsk("Waar zal ik naar zoeken?")) as Response<*>)//, conversationalSimplified() )
             random(
                 { call(cl.customAsk("Waar zal ik naar zoeken?")) },
-                { call(cl.customAsk("Welk onderwerp zullen we naar zoeken?")) }
+                { call(cl.customAsk("Waar zullen we naar opzoek?")) },
+                {call(cl.customAsk("Welk onderwerp zoek je naar?"))}
             )
-        } else if (state.keywordsCurrent.size >= 2) goto(simpleResult())
+        }
+
+        else if (state.keywordsCurrent.size >= resultThreshold) goto(simpleResult())
+
         else if (!state.madeProgress()) {
             state.suggestionCounter++
-            if (state.suggestionCounter >= 1) goto(simpleSuggest())
-        } else {
+        }
+
+        if (state.suggestionCounter >= suggestThreshold) goto(simpleSuggest())
+        else {
             random(
                 { call(cl.customAsk("Waar moet het verder over gaan?")) }
             )
         }
     }
 
-    this.onResponse<doNotKnow> {
+
+    onResponse<doNotKnow> {
         call(cl.customResponse(it.text))
         furhat.gesture(Gestures.Smile)
         call(cl.customSay("oh, oke!"))
@@ -49,62 +62,106 @@ fun conversationalSimplified(): State = state(Init) {
         goto(simpleSuggest())
     }
 
-    this.onResponse<Nee> { //todo
-    }
-
     this.onResponse {
         call(cl.customResponse(it.text))
-        var newKeywords = call(extractMatchServ(it.text.lowercase(), false))
-        state.processNewKeywords(newKeywords.toString())
 
-        if (state.keywordsCurrent.size == 0) {
-            call(cl.customSay("Ik verstond ${it.text}. Daar zitten geen onderwerpen in die ik kenn. "))
+        val newKeywords = call(extractMatchServ(it.text.lowercase(), false))
+        println("   the new keywords I found; ${newKeywords}")
+
+        if (newKeywords == null) {
+            call(cl.customSay("Ik verstond ${it.text}. Daar hebben we geen videos over."))
         } else {
+            state.processNewKeywords(newKeywords.toString())
             state.updateResults()
-            state.resultSetCurrent
+            if (state.resultSetCurrent.isEmpty()) {
+                call(cl.customSay("Voor deze combinatie onderwerpen bestaat helaas geen video. Ik zoek verder zonder het woord ${newKeywords}"))
+                state.revertKeywords()
+            }
         }
-        if (state.resultSetCurrent.size <= 3) {
-            goto(simpleResult())
-        } else {
-            reentry()
-        }
+        reentry()
     }
 }
 
 fun simpleSuggest(): State = state(Init) {
     onEntry {
         println("### Entered simpleSuggest()")
-        var potentialAdditionalKeywords = getPotentialSuggestions(state.keywordsCurrent)
-        var suggestionKeywords: MutableList<ThesaurusKeyword>
-        potentialAdditionalKeywords?.toMutableList()?.removeAll(state.suggestedBefore)
 
-        if (potentialAdditionalKeywords != null) {
-            if (potentialAdditionalKeywords.size >= 3) {
-                suggestionKeywords = potentialAdditionalKeywords.take(3).toMutableList()
-            } else {
-                suggestionKeywords = potentialAdditionalKeywords.toMutableList()
-            }
-            state.suggestedLastTurn = suggestionKeywords.toMutableList()
-            state.suggestedBefore.addAll(suggestionKeywords)
-
-        //call(cl.customSay("De videos gaan verder over ${concatStrings(suggestionKeywords)}"))
+        if (state.keywordsCurrent.isEmpty()) {
+            println("here we needed a rando suggest")
         }
-        //var suggestions = potentialAdditionalKeywords[]
-        //call(cl.customSay(potentialAdditionalKeywords.toString()))
+
+        if (state.madeProgress() || state.suggestionPossibilities.isEmpty()) {
+            println("   getting new suggestionzz")
+            call(retrieveSuggestionKeywords())
+        }
+
+        if (state.suggestionPossibilities.size == state.suggestedBefore.size) {
+            call(cl.customSay("Oke ik heb geen suggesties meer. Laten we kijken welke videos er zijn."))
+            goto(simpleResult())
+        }
+
+        var suggestionKeywords = state.suggestionPossibilities
+        suggestionKeywords.removeAll(state.suggestedBefore)
+        suggestionKeywords = suggestionKeywords.take(3).toMutableList()
+        state.suggestedLastTurn = suggestionKeywords
+        state.suggestedBefore.addAll(suggestionKeywords)
+
+        println("   suggested last ${state.suggestedLastTurn.map { it.label }} \n   suggested before ${state.suggestedBefore.map{it.label}}\n   suggestionPossibiliteis: ${state.suggestionPossibilities.map{it.label }} ")
+
+        call(cl.customSay("De videos gaan verder over ${concatStrings(suggestionKeywords.mapNotNull { it.label })}"))
+        call(cl.customAsk("Zit daar iets leuks tussen?"))
+    }
+
+    onResponse<Ja> {
+        call(cl.customResponse(it.text))
+        call(cl.customAsk("Oke, welk onderwerp vond je interessant?"))
+        goto(handleSimpleSuggestResponse(it.text))
+    }
+
+    onResponse<Nee> {
+        call(cl.customResponse(it.text))
+        call(cl.customSay("Oh oke"))
+        raise(it.secondaryIntent)
+        reentry()
+    }
+
+    onResponse {
+        call(cl.customResponse(it.text))
+        goto(handleSimpleSuggestResponse(it.text))
+    }
+
+    onExit {
+        state.suggestionCounter = 0
     }
 }
 
-
-fun selectSimpleSuggestKeywords () {
-
+fun retrieveSuggestionKeywords(): State = state(Init) {
+    onEntry {
+        state.suggestionPossibilities = getPotentialSuggestions(state.keywordsCurrent)!!.toMutableList()
+        terminate()
+    }
 }
 
-fun handleSimpleSuggestResponse() {}
+fun handleSimpleSuggestResponse(userResponse: String): State = state(Init) {
+    onEntry {
+        println("    Response for suggestresponse handler: $userResponse")
+        val match = findClosestMatch(state.suggestedLastTurn.mapNotNull { it.label }, userResponse)
+        val matchingFromSuggest = state.suggestedLastTurn.find { it.label == match }
+        //val gtaa = matchingFromSuggest?.gtaa
+        //println("   Match: $match, and then it's gtaa: ${gtaa}, via the element: $matchingFromSuggest")
+        if (matchingFromSuggest != null) state.addKeyword(matchingFromSuggest)
+        state.updateResults()
+        goto(conversationalSimplified())
+    }
+}
 
 fun simpleResult(): State = state(Init) {
     onEntry {
         println("### Entered simpleResult()")
-        call(cl.customSay("Hier is het filmpje!.")); //een filmpje over ${currentSet.getHumanReadableLabels()}"))
+        call(cl.customSay("Hier is het filmpje!")) //een filmpje over ${currentSet.getHumanReadableLabels()}"))
+        val vid = state.getRandomVideo()
+        if (vid == null) {state.keywordsCurrent.take(1)} // always return something
+        state.updateResults()
         call(watchVideo(state.getRandomVideo()?.link))
     }
 }

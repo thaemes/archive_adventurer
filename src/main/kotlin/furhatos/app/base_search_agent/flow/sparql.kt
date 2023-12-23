@@ -102,6 +102,7 @@ WHERE {
   FILTER(${filterClause})
 }
 """ + post
+   //println("Query from sparqlQueryLinkedTopicsMulti: $q")
     return q
 }
 

@@ -4,7 +4,6 @@ import furhatos.app.base_search_agent.DataDelivery
 import furhatos.app.base_search_agent.PORT
 import furhatos.app.base_search_agent.SPEECH_DONE
 import furhatos.app.base_search_agent.nlu.ThesaurusKeyword
-import furhatos.app.base_search_agent.nlu.findClosestMatch
 import furhatos.event.senses.SenseSkillGUIConnected
 import furhatos.flow.kotlin.*
 import furhatos.flow.kotlin.voice.Voice
@@ -13,7 +12,6 @@ import furhatos.util.Gender
 import furhatos.util.Language
 import org.json.JSONArray
 import org.json.JSONObject
-import sparqlPossibleSuggestions
 import java.io.File
 import java.io.FileWriter
 import java.io.BufferedWriter
@@ -39,7 +37,7 @@ val GUIConnected = state(NoGUI) {
     onEntry {
         // Pass data to GUI
         println("A GUI connected")
-        //call(connectMatchServ())
+        if(!matchServ.isConnected) call(connectMatchServ())
         goto(Init)
     }
 
@@ -60,25 +58,26 @@ val Init: State = state(GUIConnected) {
         furhat.setInputLanguage(Language.DUTCH)
         val v = Voice(
             gender = Gender.MALE, language = Language.DUTCH,
-            rate = 1.0
+            rate = 1.7
             //rate = 1.65
         )
         furhat.setVoice(v)
         furhat.param.noSpeechTimeout = 12000
         furhat.param.endSilTimeout = 2000
         furhat.attendAll()
+        println("init executed")
         dialogLogger.startSession()
     }
-    onReentry {
-    }
+//    onReentry {
+//    }
 
 //    onButton("Start Conversational!", color = Color.Green) {
 //        goto(conversationalPrompt())
 //    }
 
-//    onButton("try simplified"){
-//        goto(conversationalSimplified())
-//    }
+    onButton("try simplified"){
+        goto(conversationalSimplified())
+    }
 
     onButton("force LANG", color = Color.Green, section = Section.RIGHT) {
         furhat.setInputLanguage(Language.DUTCH)
@@ -102,11 +101,13 @@ val Init: State = state(GUIConnected) {
     onButton("Reset current set conversational", color = Color.Green) {
         currentSet.reset()
         call(cl.reset())
+        state.resetState()
     }
 
     onButton("Start logger", color = Color.Yellow) {
         dialogLogger.startSession()
     }
+
     onButton("Stop logger") {
         dialogLogger.endSession()
     }
@@ -120,7 +121,6 @@ val Init: State = state(GUIConnected) {
         var res = call(extractMatchServ("bananen", false))
         println(res)
     }
-
 
     onButton("Dump log", color=Color.Yellow) {
         println(cl.getLog())
@@ -231,7 +231,6 @@ fun writeAnnotatedLog(input: String)  {
     }
 
 }
-
 
 fun generateFilename(): String {
     val currentDate = Date()

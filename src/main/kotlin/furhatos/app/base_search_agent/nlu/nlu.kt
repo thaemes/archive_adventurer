@@ -85,7 +85,7 @@ class doNotKnow : ComplexEnumEntity() {
 }
 
 class Nee : Intent() {
-    override fun getExamples(Lang: Language): List<String> {
+    override fun getExamples(lang: Language): List<String> {
         return listOf(
             "nee", "niet", "nah", "neen", "nope"
         )
@@ -98,6 +98,9 @@ class provideOptions() : ComplexEnumEntity() {
         return listOf(
             "wat heb je?",
             "welke heb je?",
+            "wat is er allemaal?",
+            "wat heb je allemaal",
+            "wat zit er in?",
             "welke onderwerpen zijn er?",
             "welke onderwerpen heb je?"
         )

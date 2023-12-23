@@ -109,7 +109,7 @@ fun getGTAAPartial(input: String?): Pair<String?, JSONObject?> {
 
     if (input != null) {
         val query = sparqlGTAARegex(input)
-        println(query)
+        //(println)(query)
         println("... trying to send ${input}")
         try {
             val resultJson = JSONObject(post(bg_kg_url, data = mapOf("query" to query), headers = headers).text)
@@ -126,6 +126,9 @@ fun getGTAAPartial(input: String?): Pair<String?, JSONObject?> {
 fun getPotentialSuggestions(inputKws: List<ThesaurusKeyword>): List<ThesaurusKeyword>? {
     val gtaas = inputKws.mapNotNull { it.gtaa }
     val query = sparqlPossibleSuggestions(gtaas)
+
+    //println("    query for pot. suggestions:$query")
+
     val resultJson: JSONObject?
 
     val headers = mapOf("Accept" to "application/sparql-results+json;q=1.0")

@@ -21,6 +21,7 @@ class MatchingServer {
                 matchServ.writer.close()
                 matchServ.reader.close()
                 matchServ.socket.close()
+                isConnected = false
                 println("closed connection to matching server")
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -37,24 +38,29 @@ fun connectMatchServ(): State = state(Init) {
             matchServ.reader = BufferedReader(InputStreamReader(matchServ.socket.getInputStream()))
             matchServ.isConnected = true
             println("Connected to Matching server")
+
         } catch (e: Exception) {
             println("ERROR connecting to Matching server")
             //e.printStackTrace()
         }
+        terminate()
     }
 }
 
 fun extractMatchServ(incoming: String?, quiet: Boolean): State = state(Init) {
     onEntry {
-        println("Attempting extraction")
+        println("Attempting extraction on ${incoming}")
+
         if (!matchServ.isConnected) {
             println("Tried extraction, but the matchserv was not connected")
-            terminate()
+            terminate(null)
         }
+
         if (incoming == null) {
-            println("matching serv. incoming was null")
-            terminate()
+            println("Requesting matching serv. but the input incoming was null")
+            terminate(null)
         }
+
         try {
             // Send data to the server
             matchServ.writer.write(incoming)
@@ -62,32 +68,34 @@ fun extractMatchServ(incoming: String?, quiet: Boolean): State = state(Init) {
             matchServ.writer.flush()
         } catch (e: Exception) {
             e.printStackTrace()
-            terminate("")
+            terminate(null)
         }
         try {
             // Read response from the server
-            val rec = matchServ.reader.readLine() ?: ""
-            println("received from server: " + rec)
+            var rec = matchServ.reader.readLine() ?: ""
+            println("   Received from server: " + rec)
+
             if (rec.isNotEmpty()) {
-                println("Received response: $rec")
                 // Check if the response is "Initiating slow matching"
                 if (rec.contains("!slow matching")) {
                     // Call your function for handling slow matching initiation
                     call(slowMatchingResponse(false, quiet))
                     // Wait for the second response with the matches
-                    val secondResponse = matchServ.reader.readLine() ?: ""
-                    println("Received second response: $secondResponse")
+                    rec = matchServ.reader.readLine() ?: ""
+                    println("   Received second response: $rec")
                     call(slowMatchingResponse(true, quiet))
-                    terminate(secondResponse)
+                }
+                if (rec.contains("!no match found")){
+                    terminate(null)
                 }
                 terminate(rec)
             } else {
-                println("Received an empty response")
-                terminate("")
+                println("   Received an empty response")
+                terminate(null)
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            terminate("")
+            terminate(null)
         }
     }
 }

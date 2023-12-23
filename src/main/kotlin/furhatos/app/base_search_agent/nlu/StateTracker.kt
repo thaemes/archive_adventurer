@@ -9,12 +9,15 @@ import org.json.JSONObject
 class StateTracker {
 
     var keywordsCurrent: MutableList<ThesaurusKeyword> = mutableListOf()
-    var keywordsLast: MutableList<ThesaurusKeyword> = mutableListOf()
+    private var keywordsLast: MutableList<ThesaurusKeyword> = mutableListOf()
     private var resultSetCurrentJSON: JSONObject? = null
     var resultSetCurrent: List<Video?> = listOf()
     var suggestionCounter = 0
+
     var suggestedBefore: MutableList<ThesaurusKeyword> = mutableListOf()
     var suggestedLastTurn: MutableList<ThesaurusKeyword> = mutableListOf()
+    var suggestionPossibilities: MutableList<ThesaurusKeyword> = mutableListOf()
+    //var potentialSuggestionsNeedFlush = false
 
     fun addKeyword(inputKw: ThesaurusKeyword) {
         if (!keywordsCurrent.contains(inputKw)) {
@@ -29,6 +32,7 @@ class StateTracker {
             val mostSimilarWord =
                 thesaurusKeywords.maxByOrNull { it.similarityScore } // maybe change to longest keyword!
             mostSimilarWord?.let { this.addKeyword(it) }
+            println("Added new keyword: ${mostSimilarWord?.label}")
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -55,7 +59,8 @@ class StateTracker {
     }
 
     fun updateResults()  {
-        var results = searchLinkedAPIMulti(this.getGTAAs())
+        println("new videos retrieved with current results: ${this.getLabels()}")
+        val results = searchLinkedAPIMulti(this.getGTAAs())
         val resultsArray = results?.getJSONObject("results")?.getJSONArray("bindings")
         val videoList = mutableListOf<Video>()
         //if (resultsArray == null) return null
@@ -74,7 +79,7 @@ class StateTracker {
     }
 
     fun getRandomVideo(): Video? {
-        return this.resultSetCurrent?.let {
+        return this.resultSetCurrent.let {
             if (it.isNotEmpty()) it.random() else null
         }
     }
@@ -89,10 +94,11 @@ class StateTracker {
     }
 
     fun resetState() {
-        this.keywordsLast = mutableListOf()
+        this.keywordsCurrent = mutableListOf()
         this.keywordsLast = mutableListOf()
         this.resultSetCurrentJSON = null
         this.suggestedBefore = mutableListOf()
+        this.suggestionPossibilities = mutableListOf()
         this.suggestedLastTurn = mutableListOf()
         this.suggestionCounter = 0
         println("Reset conversational state")

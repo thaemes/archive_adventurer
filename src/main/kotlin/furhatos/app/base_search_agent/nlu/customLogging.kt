@@ -1,6 +1,7 @@
 package furhatos.app.base_search_agent
 
 import furhatos.app.base_search_agent.flow.Init
+import furhatos.app.base_search_agent.nlu.Nee
 import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.*
 import org.json.JSONArray
@@ -41,7 +42,21 @@ class CustomLogger {
         onEntry {
             call(addLog(who = "robot", text = prompt))
             furhat.ask(prompt)
-            terminate()
+        }
+//        onResponse{
+//            println("got any resp")
+//            terminate(it)
+//        }
+    }
+
+
+    fun customAskRand(prompt: String, prompt2: String): State = state(Init) {
+        onEntry {
+            val toSay = random(
+                {prompt}, {prompt2}
+            )
+            call(addLog(who = "robot", text = prompt))
+            furhat.ask(prompt)
         }
     }
 
@@ -66,7 +81,7 @@ class CustomLogger {
                 put("emojiId", "")
                 put("startTime", formattedTime)
             }
-            println("about to add: " + message.toString())
+            //println("about to add: " + message.toString())
             messagesLogArray.put(message)
             counter++
             terminate()

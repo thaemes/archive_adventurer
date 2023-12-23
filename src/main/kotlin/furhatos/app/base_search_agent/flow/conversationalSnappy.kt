@@ -3,6 +3,7 @@ package furhatos.app.base_search_agent.flow
 import furhatos.app.base_search_agent.nlu.*
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
+import org.json.JSONArray
 import org.json.JSONObject
 
 
@@ -56,22 +57,27 @@ fun conversationalPromptSnap(): State = state(Init) {
 
     this.onResponse {
         call(cl.customResponse(it.text))
-        currentSet.kws_prev = currentSet.kws
-        var newKWs = call(extractMatchServ(it.text.lowercase(), false))
-        println("** just got newKWs:$newKWs")
-        currentSet.loadDataFromJson(newKWs.toString())
 
-        if (currentSet.kws.size == 0) {
-            call(cl.customSay("Ik verstond ${it.text}"))
-            call(cl.customSay("Daar zitten geen onderwerpen in die ik kenn. "))
-            if (currentSet.cameFromSuggestion) goto(askSuggestSnap(same = true))
-            else goto(conversationalPromptSnap())
+        if (!currentSet.cameFromSuggestion) {
+            currentSet.kws_prev = currentSet.kws
+            var newKWs = call(extractMatchServ(it.text.lowercase(), false))
+            println("** just got newKWs:$newKWs")
+            currentSet.loadDataFromJson(newKWs.toString())
+
+            if (currentSet.kws.size == 0) {
+                call(cl.customSay("Ik verstond ${it.text}"))
+                call(cl.customSay("Daar zitten geen onderwerpen in die ik kenn. "))
+                if (currentSet.cameFromSuggestion) goto(askSuggestSnap(same = true))
+                else goto(conversationalPromptSnap())
+            }
         }
-
-        if(currentSet.cameFromSuggestion) {
-            val match = findClosestMatch(currentSet.suggestedLastTurn , it.text.lowercase() )
-            val newKw = call(extractMatchServ(match, true))
-            currentSet.loadDataFromJson(newKw.toString())
+        if (currentSet.cameFromSuggestion) {
+            val match = findClosestMatch(currentSet.suggestedLastTurn, it.text.lowercase())
+            println("MATCH: " + match)
+            val newK = call(extractMatchServ(match, true))
+            println("newkw: " + newK)
+            //val stripped = filterItemsWithMostSpaces(newKw)
+            currentSet.loadDataFromJson(newK.toString())
         }
 
         if (!currentSet.kws.all { it == null }) {
@@ -151,20 +157,45 @@ fun suggestionResponse(): State = state(Init) {
         )
     }
     onResponse {
-       // findClosestMatch()
+        // findClosestMatch()
     }
 }
 
 fun quickResult(): State = state(Init) {
     onEntry {
         random(
-            {call(cl.customSay("Hier is een filmpje!"))},
-            {call(cl.customSay("Laten we kijken!"))}
+            { call(cl.customSay("Hier is een filmpje!")) },
+            { call(cl.customSay("Laten we kijken!")) }
         )
         call(watchVideo(currentSet.getRandomVideo()?.link))
     }
 }
 
+
+fun filterItemsWithMostSpaces(jsonString: String): String {
+    val jsonArray = JSONArray(jsonString)
+    var maxSpaces = 0
+    val itemsWithMostSpaces = mutableListOf<JSONObject>()
+
+    println("spaces fun found:" + jsonString)
+    // First, find the maximum number of spaces
+    for (i in 0 until jsonArray.length()) {
+        val jsonObject = jsonArray.getJSONObject(i)
+        val spaceCount = jsonObject.getString("label").count { it.isWhitespace() }
+        maxSpaces = maxOf(maxSpaces, spaceCount)
+    }
+
+    // Then, filter items that have the maximum number of spaces
+    for (i in 0 until jsonArray.length()) {
+        val jsonObject = jsonArray.getJSONObject(i)
+        val spaceCount = jsonObject.getString("label").count { it.isWhitespace() }
+        if (spaceCount == maxSpaces) {
+            itemsWithMostSpaces.add(jsonObject)
+        }
+    }
+    println("fun found: " + itemsWithMostSpaces.toList().toString())
+    return JSONArray(itemsWithMostSpaces.toList()).toString()
+}
 
 //fun conversationalResult(): State = state(Init) {
 //    onEntry {
@@ -250,3 +281,4 @@ fun quickResult(): State = state(Init) {
 ////        }
 ////    }
 //}
+

@@ -39,7 +39,7 @@ val GUIConnected = state(NoGUI) {
     onEntry {
         // Pass data to GUI
         println("A GUI connected")
-        call(connectMatchServ())
+        //call(connectMatchServ())
         goto(Init)
     }
 
@@ -57,15 +57,13 @@ val GUIConnected = state(NoGUI) {
 
 val Init: State = state(GUIConnected) {
     onEntry {
+        furhat.setInputLanguage(Language.DUTCH)
         val v = Voice(
             gender = Gender.MALE, language = Language.DUTCH,
             rate = 1.0
             //rate = 1.65
         )
         furhat.setVoice(v)
-        furhat.setInputLanguage(Language.DUTCH)
-        //call(connectMatchServ())
-        furhat.setInputLanguage(Language.DUTCH)
         furhat.param.noSpeechTimeout = 12000
         furhat.param.endSilTimeout = 2000
         furhat.attendAll()
@@ -82,6 +80,9 @@ val Init: State = state(GUIConnected) {
 //        goto(conversationalSimplified())
 //    }
 
+    onButton("force LANG", color = Color.Green, section = Section.RIGHT) {
+        furhat.setInputLanguage(Language.DUTCH)
+    }
     onButton("Start snappy") {
         goto(conversationalPromptSnap())
     }

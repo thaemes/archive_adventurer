@@ -28,9 +28,15 @@ val matchServ = MatchingServer()
 
 // Starting state, before our GUI has connected.
 val NoGUI: State = state(null) {
+    onEntry {
+        users.setSimpleEngagementPolicy(1.5,1)
+    }
     onEvent<SenseSkillGUIConnected> {
         goto(GUIConnected)
     }
+
+    //onButton("test inheritance"){}
+
 }
 
 val GUIConnected = state(NoGUI) {
@@ -58,16 +64,32 @@ val Init: State = state(GUIConnected) {
         furhat.setInputLanguage(Language.DUTCH)
         val v = Voice(
             gender = Gender.MALE, language = Language.DUTCH,
-            rate = 1.7
+            rate = 1.0
             //rate = 1.65
         )
         furhat.setVoice(v)
         furhat.param.noSpeechTimeout = 12000
-        furhat.param.endSilTimeout = 2000
-        furhat.attendAll()
+        furhat.param.endSilTimeout = 1200
+        //furhat.attendAll()
+
         println("init executed")
         dialogLogger.startSession()
     }
+
+    onButton("blank") {
+        furhat.character = "blank"
+    }
+
+    onUserEnter {
+        furhat.attend(it)
+        println("user entered")
+    }
+
+//    onUserLeave {
+//        //furhat.attendNobody()
+//        //reentry()
+//    }
+
 //    onReentry {
 //    }
 
@@ -102,6 +124,8 @@ val Init: State = state(GUIConnected) {
         currentSet.reset()
         call(cl.reset())
         state.resetState()
+        dialogLogger.endSession()
+        dialogLogger.startSession()
     }
 
     onButton("Start logger", color = Color.Yellow) {

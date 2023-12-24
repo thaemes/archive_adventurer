@@ -121,7 +121,7 @@ fun simpleSuggest(): State = state(Init) {
     onResponse<Nee> {
         call(cl.customResponse(it.text))
         call(cl.customSay("Oh oke"))
-        raise(it.secondaryIntent)
+        //raise(it.secondaryIntent)
         reentry()
     }
 

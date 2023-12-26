@@ -30,6 +30,12 @@ val matchServ = MatchingServer()
 val NoGUI: State = state(null) {
     onEntry {
         users.setSimpleEngagementPolicy(1.5,1)
+
+        println("Setting up serial")
+        val s = setupSerialPort()
+        if (s != null) {
+            parallel(abortOnExit = false) {goto(readSerialData(s))}
+        } else println("   NO SERIAL PRESENT? ")
     }
     onEvent<SenseSkillGUIConnected> {
         goto(GUIConnected)
@@ -56,6 +62,7 @@ val GUIConnected = state(NoGUI) {
 //        send(DataDelivery(buttons = null, inputFields = null, messagesLog = null, videoUrl = null))
 //        println("sent empty to GUI")
     }
+
 }
 
 
@@ -76,9 +83,9 @@ val Init: State = state(GUIConnected) {
         dialogLogger.startSession()
     }
 
-    onButton("blank") {
-        furhat.character = "blank"
-    }
+//    onButton("blank") {
+//        furhat.character = "blank"
+//    }
 
     onUserEnter {
         furhat.attend(it)
@@ -104,9 +111,10 @@ val Init: State = state(GUIConnected) {
     onButton("force LANG", color = Color.Green, section = Section.RIGHT) {
         furhat.setInputLanguage(Language.DUTCH)
     }
-    onButton("Start snappy") {
-        goto(conversationalPromptSnap())
-    }
+
+//    onButton("Start snappy") {
+//        goto(conversationalPromptSnap())
+//    }
 
 //    onButton("blank face") {
 
@@ -152,41 +160,41 @@ val Init: State = state(GUIConnected) {
         println("sent!")
     }
 
-    onButton("Trigger reactmode") {
-        val messagesArray = JSONArray()
-
-        // Example message
-        val message1 = JSONObject().apply {
-            put("id", "message1")
-            put("text", "Hallo, ik zoeken?")
-            put("emojiId", "reaction1")
-            put("who", "robot")
-        }
-        val message2 = JSONObject().apply {
-            put("id", "message3")
-            put("text", "Ik zoeken weet niet man. ")
-            put("emojiId", "reaction1")
-            put("who", "kid")
-        }
-
-        val messagesJson = JSONObject().apply {
-            put("messages", messagesArray)
-        }
-
-        // Add the message to the array
-        messagesArray.put(message1)
-        messagesArray.put(message2)
-
-        send(
-            DataDelivery(
-                buttons = null,
-                inputFields = null,
-                messagesLog = listOf(messagesJson.toString()),
-                videoUrl = null
-            )
-        )
-        println("sent: " + messagesJson)
-    }
+//    onButton("Trigger reactmode") {
+//        val messagesArray = JSONArray()
+//
+//        // Example message
+//        val message1 = JSONObject().apply {
+//            put("id", "message1")
+//            put("text", "Hallo, ik zoeken?")
+//            put("emojiId", "reaction1")
+//            put("who", "robot")
+//        }
+//        val message2 = JSONObject().apply {
+//            put("id", "message3")
+//            put("text", "Ik zoeken weet niet man. ")
+//            put("emojiId", "reaction1")
+//            put("who", "kid")
+//        }
+//
+//        val messagesJson = JSONObject().apply {
+//            put("messages", messagesArray)
+//        }
+//
+//        // Add the message to the array
+//        messagesArray.put(message1)
+//        messagesArray.put(message2)
+//
+//        send(
+//            DataDelivery(
+//                buttons = null,
+//                inputFields = null,
+//                messagesLog = listOf(messagesJson.toString()),
+//                videoUrl = null
+//            )
+//        )
+//        println("sent: " + messagesJson)
+//    }
 
     onButton("Trigger videoMode") {
         send(
@@ -203,11 +211,11 @@ val Init: State = state(GUIConnected) {
         goto(askSuggestSnap())
     }
 
-    onButton("get SPARQL new") {
-        state.addKeyword(ThesaurusKeyword("28650", "onthullingen", 1.0))
-        state.addKeyword(ThesaurusKeyword("27753", "monumenten", 1.0))
-        call(simpleSuggest())
-    }
+//    onButton("get SPARQL new") {
+//        state.addKeyword(ThesaurusKeyword("28650", "onthullingen", 1.0))
+//        state.addKeyword(ThesaurusKeyword("27753", "monumenten", 1.0))
+//        call(simpleSuggest())
+//    }
 
 //    onButton("test levenstein") {
 //        val words = listOf("tentoonstellingen", "jonge dieren", "keuringen")

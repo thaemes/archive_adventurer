@@ -12,9 +12,12 @@ const val KEYBERT_THRESHOLD = 0.4
 const val KEYBERTPORT = 12222
 const val KEYBERTIP = "localhost"
 
-
-const val MATCHING_SERVER_IP = "10.150.24.206"//"10.150.25.1"//"10.150.24.119" //"127.0.0.1" //"10.150.24.170"//"10.150.24.129"
+// New Matching server
+const val MATCHING_SERVER_IP = "localhost"//"10.150.24.206"//"10.150.25.1"//"10.150.24.119" //"127.0.0.1" //"10.150.24.170"//"10.150.24.129"
 const val MATCHING_SERVER_PORT = 12223
+
+// Serial comms
+const val serialPortName = "dev/tty.usbmodem2101"
 
 // BEELD & GELUID Config
 const val bg_kg_url = "https://cat.apis.beeldengeluid.nl/sparql/"

@@ -55,6 +55,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-common"
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
     implementation(files('SimpleNLG-NL-1.1.jar'))
+    implementation 'com.fazecast:jSerialComm:[2.0.0,3.0.0)'
 }
 
 jar {

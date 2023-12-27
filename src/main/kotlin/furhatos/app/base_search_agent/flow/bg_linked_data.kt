@@ -11,6 +11,7 @@ import sparqlGTAARegex
 import sparqlNarrower
 import sparqlPossibleSuggestions
 import sparqlQueryLinkedTopicsMulti
+import sparqlRankingRelatedness
 import java.net.UnknownHostException
 
 
@@ -127,8 +128,6 @@ fun getPotentialSuggestions(inputKws: List<ThesaurusKeyword>): List<ThesaurusKey
     val gtaas = inputKws.mapNotNull { it.gtaa }
     val query = sparqlPossibleSuggestions(gtaas)
 
-    //println("    query for pot. suggestions:$query")
-
     val resultJson: JSONObject?
 
     val headers = mapOf("Accept" to "application/sparql-results+json;q=1.0")
@@ -150,6 +149,36 @@ fun getPotentialSuggestions(inputKws: List<ThesaurusKeyword>): List<ThesaurusKey
     }
     return keywords.distinctBy { it.gtaa to it.label }
 }
+
+fun filterOnRelatedTerms(inputKw: ThesaurusKeyword, otherTerms:List<ThesaurusKeyword>): List<ThesaurusKeyword>? {
+    val gtaaIn = inputKw.gtaa
+    val gtaaOthers = otherTerms.mapNotNull{ it.gtaa }
+
+    val query = gtaaIn?.let { sparqlRankingRelatedness(it, gtaaOthers) }
+
+    val resultJson: JSONObject?
+
+    println("calling relatedness")
+    val headers = mapOf("Accept" to "application/sparql-results+json;q=1.0")
+    try {
+        resultJson = JSONObject(post(bg_kg_url, data = mapOf("query" to query), headers = headers).text)
+    } catch (e: UnknownHostException) {
+        println("... Unknown host exception for B&G Communica API")
+        return null
+    }
+
+    val bindings = resultJson.getJSONObject("results").getJSONArray("bindings")
+
+    val keywords = mutableListOf<ThesaurusKeyword>()
+    for (i in 0 until bindings.length()) {
+        val binding = bindings.getJSONObject(i)
+        val label = binding.getJSONObject("label").getString("value")
+        val gtaa = binding.getJSONObject("otherTerm").getString("value")
+        keywords.add(ThesaurusKeyword(gtaa, label, 1.0))
+    }
+    return keywords
+}
+
 
 fun extractGTAAMulti2(res: List<Pair<String?, JSONObject?>>?): List<ThesaurusKeyword?>? {
     if (res == null) return null

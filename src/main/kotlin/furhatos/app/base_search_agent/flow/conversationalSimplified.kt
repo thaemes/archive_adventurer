@@ -3,6 +3,7 @@ package furhatos.app.base_search_agent.flow
 import furhatos.app.base_search_agent.nlu.*
 import furhatos.app.base_search_agent.nlu.StateTracker
 import furhatos.app.base_search_agent.nlu.doNotKnow
+import furhatos.app.base_search_agent.useRanking
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
 import furhatos.nlu.Response
@@ -18,7 +19,7 @@ OVERAL waar video, List<Video>
 
 var state = StateTracker()
 const val suggestThreshold = 1
-const val resultThreshold = 2
+const val resultThreshold = 4
 
 
 
@@ -100,6 +101,12 @@ fun simpleSuggest(): State = state(Init) {
             goto(simpleResult())
         }
 
+        println("    Suggestion List before ranking: ${state.suggestionPossibilities.map{it.label}}")
+        if(useRanking) {
+            call(retrieveSuggestionKeywords())
+            state.updatePreferredSuggestions()
+        }
+        println("    Suggestion List after ranking: ${state.suggestionPossibilities.map{it.label}}")
         var suggestionKeywords = state.suggestionPossibilities
         suggestionKeywords.removeAll(state.suggestedBefore)
         suggestionKeywords = suggestionKeywords.take(3).toMutableList()
@@ -108,6 +115,7 @@ fun simpleSuggest(): State = state(Init) {
 
         println("   suggested last ${state.suggestedLastTurn.map { it.label }} \n   suggested before ${state.suggestedBefore.map{it.label}}\n   suggestionPossibiliteis: ${state.suggestionPossibilities.map{it.label }} ")
 
+        if(suggestionKeywords.size == 0) {goto(simpleResult())}
         call(cl.customSay("De videos gaan verder over ${concatStrings(suggestionKeywords.mapNotNull { it.label })}"))
         call(cl.customAsk("Zit daar iets leuks tussen?"))
     }

@@ -10,16 +10,14 @@ import furhatos.flow.kotlin.State
 import furhatos.flow.kotlin.state
 
 fun setupSerialPort(): SerialPort? {
-    val portName = "/dev/tty.usbmodem2101" // Replace with your port name
     val baudRate = 9600 // Replace with the correct baud rate
 
     val serialPort = SerialPort.getCommPort(serialPortName)
     serialPort.baudRate = baudRate
     serialPort.openPort()
 
-    println("setup:" + serialPort.isOpen)
+    println("   Serial connection is: " + serialPort.isOpen)
     return if (serialPort.isOpen) serialPort else null
-
 }
 
 fun readSerialData(serialPort: SerialPort): State = state(Init) {

@@ -1,9 +1,13 @@
 package furhatos.app.base_search_agent.nlu
 
+import RankingServer
+import furhatos.app.base_search_agent.flow.filterOnRelatedTerms
+import furhatos.app.base_search_agent.flow.rankingServ
 import furhatos.app.base_search_agent.flow.searchLinkedAPIMulti
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.decodeFromString
+import furhatos.app.base_search_agent.useRanking
+import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.Json.Default.encodeToString
 import org.json.JSONObject
 
 class StateTracker {
@@ -58,7 +62,7 @@ class StateTracker {
         return concatStrings(this.getLabels())
     }
 
-    fun updateResults()  {
+    fun updateResults() {
         println("new videos retrieved with current results: ${this.getLabels()}")
         val results = searchLinkedAPIMulti(this.getGTAAs())
         val resultsArray = results?.getJSONObject("results")?.getJSONArray("bindings")
@@ -78,6 +82,17 @@ class StateTracker {
         resultSetCurrent = videoList
     }
 
+    fun updatePreferredSuggestions() {
+        if (useRanking) {
+            val request = createJsonRequest(this.keywordsCurrent[0], this.suggestionPossibilities)
+            val results = getRankingResults(rankingServ, request)
+            results?.forEach {
+                println("Label: ${it.label}, GTAA: ${it.gtaa}, Similarity Score: ${it.similarityScore}")
+            }
+            this.suggestionPossibilities = results as MutableList<ThesaurusKeyword>
+        }
+    }
+
     fun getRandomVideo(): Video? {
         return this.resultSetCurrent.let {
             if (it.isNotEmpty()) it.random() else null
@@ -85,9 +100,10 @@ class StateTracker {
     }
 
     fun madeProgress(): Boolean {
-        if(this.keywordsLast == this.keywordsCurrent) return true
+        if (this.keywordsLast == this.keywordsCurrent) return true
         return false
     }
+
     fun revertKeywords() {
         this.keywordsCurrent = this.keywordsLast.toList().toMutableList()
         //this.updateResultsWithCurrentKeywords()
@@ -106,3 +122,27 @@ class StateTracker {
 
 }
 
+@Serializable
+data class KeywordsRequest(
+    @SerialName("main_keyword") val mainKeyword: ThesaurusKeyword,
+    @SerialName("other_keywords") val otherKeywords: List<ThesaurusKeyword>
+)
+
+fun createJsonRequest(mainKeyword: ThesaurusKeyword, otherKeywords: List<ThesaurusKeyword>): String {
+    val request = KeywordsRequest(mainKeyword, otherKeywords)
+    return Json.encodeToString(request)
+}
+
+
+//... your JSON request string ...
+fun deserializeResponse(jsonResponse: String): List<ThesaurusKeyword> {
+    return Json.decodeFromString(jsonResponse)
+}
+
+fun getRankingResults(rankingServer: RankingServer, request: String): List<ThesaurusKeyword>? {
+    rankingServer.sendRequest(request)
+    val response = rankingServer.receiveResponse() ?: return null
+    println("desireal: " + deserializeResponse(response))
+    return deserializeResponse(response)
+
+}

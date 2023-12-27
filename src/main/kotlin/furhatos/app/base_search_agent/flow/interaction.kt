@@ -1,8 +1,7 @@
 package furhatos.app.base_search_agent.flow
 
-import furhatos.app.base_search_agent.DataDelivery
-import furhatos.app.base_search_agent.PORT
-import furhatos.app.base_search_agent.SPEECH_DONE
+import RankingServer
+import furhatos.app.base_search_agent.*
 import furhatos.app.base_search_agent.nlu.ThesaurusKeyword
 import furhatos.event.senses.SenseSkillGUIConnected
 import furhatos.flow.kotlin.*
@@ -24,24 +23,25 @@ val CLICK_BUTTON = "ClickButton"
 
 val kbserv = KeyBERTserver()
 val matchServ = MatchingServer()
-
+val rankingServ = RankingServer()
 
 // Starting state, before our GUI has connected.
 val NoGUI: State = state(null) {
     onEntry {
-        users.setSimpleEngagementPolicy(1.5,1)
+        users.setSimpleEngagementPolicy(1.5, 1)
 
-        println("Setting up serial")
-        val s = setupSerialPort()
-        if (s != null) {
-            parallel(abortOnExit = false) {goto(readSerialData(s))}
-        } else println("   NO SERIAL PRESENT? ")
+        // UNCOMMENT BELOW
+        if (useSerial) {
+            println("Setting up serial")
+            val s = setupSerialPort()
+            if (s != null) {
+                parallel(abortOnExit = false) { goto(readSerialData(s)) }
+            } else println("   NO SERIAL PRESENT? ")
+        }
     }
     onEvent<SenseSkillGUIConnected> {
         goto(GUIConnected)
     }
-
-    //onButton("test inheritance"){}
 
 }
 
@@ -49,20 +49,15 @@ val GUIConnected = state(NoGUI) {
     onEntry {
         // Pass data to GUI
         println("A GUI connected")
-        if(!matchServ.isConnected) call(connectMatchServ())
+        if (!matchServ.isConnected) call(connectMatchServ())
+        if (!rankingServ.isConnected && useRanking) rankingServ.connect()
         goto(Init)
     }
 
     onEvent(CLICK_BUTTON) {
         println("Rec'd annotated logs at furhat side: " + it.get("data"))
         writeAnnotatedLog(it.get("data").toString())
-//        println("about to send ## ")
-//        currentSet.reset() // added 19 Dec
-//        call(cl.reset())   // added 19 Dec
-//        send(DataDelivery(buttons = null, inputFields = null, messagesLog = null, videoUrl = null))
-//        println("sent empty to GUI")
     }
-
 }
 
 
@@ -77,20 +72,17 @@ val Init: State = state(GUIConnected) {
         furhat.setVoice(v)
         furhat.param.noSpeechTimeout = 12000
         furhat.param.endSilTimeout = 1200
-        //furhat.attendAll()
 
         println("init executed")
         dialogLogger.startSession()
     }
 
-//    onButton("blank") {
-//        furhat.character = "blank"
-//    }
 
-    onUserEnter {
-        furhat.attend(it)
-        println("user entered")
-    }
+//    onUserEnter {
+//        furhat.attend(it)
+//        println("user entered")
+//        terminate()
+//    }
 
 //    onUserLeave {
 //        //furhat.attendNobody()
@@ -100,11 +92,8 @@ val Init: State = state(GUIConnected) {
 //    onReentry {
 //    }
 
-//    onButton("Start Conversational!", color = Color.Green) {
-//        goto(conversationalPrompt())
-//    }
 
-    onButton("try simplified"){
+    onButton("try simplified") {
         goto(conversationalSimplified())
     }
 
@@ -154,7 +143,7 @@ val Init: State = state(GUIConnected) {
         println(res)
     }
 
-    onButton("Dump log", color=Color.Yellow) {
+    onButton("Dump log", color = Color.Yellow) {
         println(cl.getLog())
         send(DataDelivery(buttons = null, inputFields = null, messagesLog = listOf(cl.getLog()), videoUrl = null))
         println("sent!")
@@ -211,10 +200,21 @@ val Init: State = state(GUIConnected) {
         goto(askSuggestSnap())
     }
 
-//    onButton("get SPARQL new") {
-//        state.addKeyword(ThesaurusKeyword("28650", "onthullingen", 1.0))
-//        state.addKeyword(ThesaurusKeyword("27753", "monumenten", 1.0))
-//        call(simpleSuggest())
+    onButton("test convo relatedness") {
+        state.keywordsCurrent.add(ThesaurusKeyword("28298", "voetbal", 1.0))
+        state.suggestionCounter = 1
+        goto(conversationalSimplified())
+    }
+
+//    onButton("test related ranking") {
+//        //     fun filterOnRelatedTerms(inputKw: ThesaurusKeyword, otherTerms:List<ThesaurusKeyword>): List<ThesaurusKeyword>? {
+//        val initial = ThesaurusKeyword("28800", "katten", 1.0)
+//        val others = listOf(
+//            ThesaurusKeyword("28465", "huisdieren", 1.0),
+//            ThesaurusKeyword("24998", "blindegeleidehonden", 1.0),
+//            ThesaurusKeyword("25286", "blinden", 1.0)
+//        )
+//        println(filterOnRelatedTerms(initial, others))
 //    }
 
 //    onButton("test levenstein") {
@@ -241,7 +241,7 @@ fun watchVideo(link: String?) = state(Init) {
     }
 }
 
-fun writeAnnotatedLog(input: String)  {
+fun writeAnnotatedLog(input: String) {
 
     try {
         // Create a File object with the given file path

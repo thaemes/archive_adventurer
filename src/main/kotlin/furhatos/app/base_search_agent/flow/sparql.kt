@@ -30,6 +30,34 @@ ASK {
         """
 }
 
+
+fun sparqlRankingRelatedness(initial: String, rest:List<String>) : String {
+
+    val inputTerm = "gtaa:$initial"
+
+    val otherTerms = rest.joinToString(" ") { "gtaa:$it" }
+    val otherTermsForFilter = rest.joinToString(", ") { "gtaa:$it" }
+
+return """
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX gtaa: <http://data.beeldengeluid.nl/gtaa/>
+PREFIX skosxl: <http://www.w3.org/2008/05/skos-xl#>
+
+SELECT DISTINCT ?otherTerm ?label
+WHERE {
+    VALUES ?inputTerm { $inputTerm }  # Your input term
+    VALUES ?otherTerms { $otherTerms}
+    ?inputTerm skos:narrower|skos:related|skos:broader ?otherTerm .
+
+  FILTER(?otherTerm IN ( $otherTermsForFilter))
+  OPTIONAL {?otherTerm skosxl:prefLabel/skosxl:literalForm ?label }
+
+}
+ORDER BY (BOUND(?otherTerm))
+"""
+
+}
+
 fun sparqlGTAARegex(input: String?): String {
     return pre + """
         SELECT *

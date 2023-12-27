@@ -17,6 +17,7 @@ fun main(args: Array<String>) {
         // Code to be executed on shutdown
         println("Program exiting...")
         matchServ.close()
+        rankingServ.close()
         dialogLogger.endSession()
         //kbserv.disconnectKeyBERTServer()
     })

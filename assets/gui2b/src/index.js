@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
 function displayStartButton() {
+    document.body.style.backgroundColor = "#f4f4f4";
     if (document.getElementById("agePanelContainer")) { document.getElementById("agePanelContainer").innerHTML = ''; }
     if (document.getElementById("readyButton")) { document.getElementById("readyButtonContainer").innerHTML = ''; }
     document.getElementById('videoContainer').innerHTML = '';
@@ -59,17 +60,22 @@ function displayStartButton() {
     document.getElementById('flowButtonContainer').append(startButton);
     //document.innerHTML = startButton;
 
-    startButton.addEventListener('click', () =>
+    startButton.addEventListener('click', function() {
+        // Send data to furhat
         furhat.send({
             event_name: "ClickButton",
             data: 'startButton'
-        }));
-}
+        });
 
+        // Reduce the brightness of the button
+        this.style.filter = "brightness(50%)";
+    });
+}
 
 
 function displayVideoMode(input) {
     //if(input.)
+    document.body.style.backgroundColor = "black";
     document.getElementById('chatContainer').innerHTML = '';
     document.getElementById('videoContainer').innerHTML = '';
     if (document.getElementById("agePanelContainer")) { document.getElementById("agePanelContainer").innerHTML = ''; }
@@ -91,12 +97,21 @@ function displayVideoMode(input) {
     video.height = 480;  // You can adjust this value
     document.getElementById('videoContainer').append(video);
 
-    // Append the video element to the body of the document
-    // You can change 'document.body' to append it to a different element
-    //document.getElementById("videoContainer").innerHTML = video.outerHTML;
+    const vidDoneButton = document.createElement('button');
+    vidDoneButton.id = "vidDoneButton";
+    vidDoneButton.innerText = "Ik ben klaar met kijken"
+    document.getElementById('videoContainer').append(vidDoneButton);
+
+    vidDoneButton.addEventListener('click', () =>
+        furhat.send({
+            event_name: "ClickButton",
+            data: 'vidDoneButton'
+        }));
+
 }
 
 function displayChatReactMode(input) {
+    document.body.style.backgroundColor = "#f4f4f4";
     if (document.getElementById("flowButtonContainer")) { document.getElementById("flowButtonContainer").innerHTML = ''; }
     document.getElementById('videoContainer').innerHTML = '';
     if (!document.getElementById('chatContainer')) { document }

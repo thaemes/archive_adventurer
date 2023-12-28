@@ -58,9 +58,18 @@ val GUIConnected = state(NoGUI) {
         if (it.get("data").toString().contains("startButton")) {
             println("Button Event contained: ${it.get("data").toString()} ")
              goto(conversationalSimplified())
-        } else {
+        }
+        else if(it.get("data").toString().contains("vidDoneButton")) {
+            println("Participant was done watching")
+            send(DataDelivery(buttons = null, inputFields = null, messagesLog = listOf(cl.getLog()), videoUrl = null))
+        }
+        else {
             println("Rec'd annotated logs at furhat side: " + it.get("data"))
             writeAnnotatedLog(it.get("data").toString())
+            call(cl.reset())
+            state.resetState()
+            dialogLogger.endSession()
+            dialogLogger.startSession()
         }
     }
 }

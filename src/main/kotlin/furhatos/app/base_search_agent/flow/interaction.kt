@@ -70,6 +70,8 @@ val GUIConnected = state(NoGUI) {
             state.resetState()
             dialogLogger.endSession()
             dialogLogger.startSession()
+            flushMatchServer()
+            if(useRanking) rankingServ.flush()
         }
     }
 }
@@ -137,6 +139,8 @@ val Init: State = state(GUIConnected) {
         state.resetState()
         dialogLogger.endSession()
         dialogLogger.startSession()
+        flushMatchServer()
+        if(useRanking) rankingServ.flush()
     }
 
     onButton("Start logger", color = Color.Yellow) {

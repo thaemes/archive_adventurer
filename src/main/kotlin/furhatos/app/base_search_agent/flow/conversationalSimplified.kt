@@ -100,12 +100,12 @@ fun simpleSuggest(): State = state(Init) {
             goto(simpleResult())
         }
 
-        println("    Suggestion List before ranking (${state.suggestionPossibilities.size}): ${state.suggestionPossibilities.map{it.label}}")
+        println("   Suggestion List before ranking (${state.suggestionPossibilities.size}): ${state.suggestionPossibilities.map{it.label}}")
         if(useRanking) {
             call(retrieveSuggestionKeywords())
             state.updatePreferredSuggestions()
         }
-        println("    Suggestion List after ranking(${state.suggestionPossibilities.size}): ${state.suggestionPossibilities.map{it.label}}")
+        println("   Suggestion List after ranking(${state.suggestionPossibilities.size}):   ${state.suggestionPossibilities.map{it.label}}")
         var suggestionKeywords = state.suggestionPossibilities
         suggestionKeywords.removeAll(state.suggestedBefore)
         suggestionKeywords = suggestionKeywords.take(3).toMutableList()

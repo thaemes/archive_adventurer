@@ -6,6 +6,7 @@ import furhatos.flow.kotlin.State
 import furhatos.flow.kotlin.state
 import java.io.*
 import java.net.Socket
+import java.net.SocketTimeoutException
 
 class MatchingServer {
     lateinit var socket: Socket
@@ -85,7 +86,7 @@ fun extractMatchServ(incoming: String?, quiet: Boolean): State = state(Init) {
                     println("   Received second response: $rec")
                     call(slowMatchingResponse(true, quiet))
                 }
-                if (rec.contains("!no match found")){
+                if (rec.contains("!no match found")) {
                     terminate(null)
                 }
                 terminate(rec)
@@ -96,6 +97,23 @@ fun extractMatchServ(incoming: String?, quiet: Boolean): State = state(Init) {
         } catch (e: Exception) {
             e.printStackTrace()
             terminate(null)
+        }
+    }
+}
+
+
+fun flushMatchServer(): State = state(Init) {
+    onEntry {
+        try {
+            matchServ.socket.soTimeout = 1000
+            val rec = matchServ.reader.readLine() ?: ""
+            println("   Flushing matching server: $rec")
+        } catch (e: SocketTimeoutException) {
+            println("Read timed out after 5 seconds")
+            terminate()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            terminate()
         }
     }
 }

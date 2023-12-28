@@ -1,11 +1,7 @@
 package furhatos.app.base_search_agent.flow
 
-import furhatos.app.base_search_agent.serialPortName
-import furhatos.app.base_search_agent.flow.Init
-import com.fazecast.jSerialComm.SerialPortDataListener
-import com.fazecast.jSerialComm.SerialPortEvent
 import com.fazecast.jSerialComm.SerialPort
-import furhatos.flow.kotlin.Furhat
+import furhatos.app.base_search_agent.serialPortName
 import furhatos.flow.kotlin.State
 import furhatos.flow.kotlin.state
 
@@ -26,6 +22,7 @@ fun readSerialData(serialPort: SerialPort): State = state(Init) {
 
         while (true) {
             if (serialPort.bytesAvailable() > 0) {
+                println("incomingserial")
                 val bytesRead = serialPort.readBytes(buffer, buffer.size)
                 val data = String(buffer, 0, bytesRead).trim()
                 //println("Got serial input: $data")

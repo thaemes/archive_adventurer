@@ -18,7 +18,7 @@ const val RANKING_SERVER_IP = "localhost"
 const val RANKING_SERVER_PORT = 12224
 
 // Serial comms
-const val serialPortName = "dev/tty.usbmodem17285601"
+const val serialPortName = "dev/cu.usbmodem17285601"
 
 // BEELD & GELUID Config
 const val bg_kg_url = "https://cat.apis.beeldengeluid.nl/sparql/"

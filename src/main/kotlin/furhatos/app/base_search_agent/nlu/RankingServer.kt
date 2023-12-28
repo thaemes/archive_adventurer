@@ -5,6 +5,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.*
 import java.net.Socket
+import java.net.SocketTimeoutException
 
 class RankingServer {
     lateinit var socket: Socket
@@ -26,7 +27,7 @@ class RankingServer {
     }
 
     fun sendRequest(request: String) {
-        println("    JSON REQUEST: "+request)
+//        println("    JSON REQUEST: " + request)
         if (!isConnected) {
             println("Not connected to Ranking server")
             return
@@ -57,22 +58,36 @@ class RankingServer {
         }
     }
 
-    fun close() {
-        if (!isConnected) {
-            println("Ranking server connection already closed.")
-            return
-        }
-
+    fun flush() {
         try {
-            writer.close()
-            reader.close()
-            socket.close()
-            isConnected = false
-            println("Closed connection to Ranking server")
-        } catch (e: IOException) {
-            println("ERROR closing Ranking server connection")
+            this.socket.soTimeout = 2000
+            val rec = this.reader.readLine() ?: ""
+            println("   Flushing matching server: $rec")
+        } catch (e: SocketTimeoutException) {
+            println("Read timed out after 5 seconds")
+        } catch (e: Exception) {
             e.printStackTrace()
+
         }
     }
+
+
+fun close() {
+    if (!isConnected) {
+        println("Ranking server connection already closed.")
+        return
+    }
+
+    try {
+        writer.close()
+        reader.close()
+        socket.close()
+        isConnected = false
+        println("Closed connection to Ranking server")
+    } catch (e: IOException) {
+        println("ERROR closing Ranking server connection")
+        e.printStackTrace()
+    }
+}
 }
 

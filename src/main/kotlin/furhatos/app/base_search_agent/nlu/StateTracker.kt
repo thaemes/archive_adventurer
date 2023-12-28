@@ -86,9 +86,9 @@ class StateTracker {
         if (useRanking) {
             val request = createJsonRequest(this.keywordsCurrent[0], this.suggestionPossibilities)
             val results = getRankingResults(rankingServ, request)
-            results?.forEach {
-                println("Label: ${it.label}, GTAA: ${it.gtaa}, Similarity Score: ${it.similarityScore}")
-            }
+//            results?.forEach {
+//                println("Label: ${it.label}, GTAA: ${it.gtaa}, Similarity Score: ${it.similarityScore}")
+//            }
             this.suggestionPossibilities = results as MutableList<ThesaurusKeyword>
         }
     }
@@ -142,7 +142,7 @@ fun deserializeResponse(jsonResponse: String): List<ThesaurusKeyword> {
 fun getRankingResults(rankingServer: RankingServer, request: String): List<ThesaurusKeyword>? {
     rankingServer.sendRequest(request)
     val response = rankingServer.receiveResponse() ?: return null
-    println("desireal: " + deserializeResponse(response))
+    //println("desireal: " + deserializeResponse(response))
     return deserializeResponse(response)
 
 }

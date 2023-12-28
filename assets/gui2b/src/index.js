@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 function displayStartButton() {
     document.body.style.backgroundColor = "#f4f4f4";
     if (document.getElementById("agePanelContainer")) { document.getElementById("agePanelContainer").innerHTML = ''; }
-    if (document.getElementById("readyButton")) { document.getElementById("readyButtonContainer").innerHTML = ''; }
+    if (document.getElementById("readyButton")) { document.getElementById("readyButtonContainer").innerHTML = '';  } 
     document.getElementById('videoContainer').innerHTML = '';
     document.getElementById('chatContainer').innerHTML = '';
 
@@ -496,7 +496,7 @@ function exportReactions() {
         age: age // Include the age in the data
     });
 
-    console.log("LAATSTE AGE: ", age);
+    //console.log("LAATSTE AGE: ", age);
 
     furhat.send({
         event_name: "ClickButton",

@@ -138,7 +138,7 @@ body {
   cursor: pointer;
 }
 
-#readyButton{
+#readyButton, #startButton{
   display: block;
   margin: 48px auto;
   padding: 16px 32px;

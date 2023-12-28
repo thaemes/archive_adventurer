@@ -9,10 +9,11 @@ const emojiList = ['🤩', '😁', '😃', '😀', '🙂'];
 let furhat = null;
 let agePanelVisible = false;
 
-console.log("i am loaded")
+console.log("I loaded")
 
 
-{FurhatGUI()
+{
+    FurhatGUI()
     .then(connection => {
         furhat = connection;
         furhat.subscribe('furhatos.app.base_search_agent.DataDelivery', (data) => {
@@ -24,12 +25,14 @@ console.log("i am loaded")
             else if (data.videoUrl) {
                 displayVideoMode(data.videoUrl)
             }
+            else if (data.buttons) { }
             else {
-                    document.getElementById('chatContainer').innerHTML = '';
-                    document.getElementById('videoContainer').innerHTML = '';
-                    if (document.getElementById("agePanelContainer")) {document.getElementById("agePanelContainer").innerHTML = '';}
-                    if (document.getElementById("readyButton")) {document.getElementById("readyButtonContainer").innerHTML = '';}
-                    console.log("got empty message");
+                document.getElementById('chatContainer').innerHTML = '';
+                document.getElementById('videoContainer').innerHTML = '';
+                if (document.getElementById("agePanelContainer")) { document.getElementById("agePanelContainer").innerHTML = ''; }
+                if (document.getElementById("readyButton")) { document.getElementById("readyButtonContainer").innerHTML = ''; }
+                console.log("got empty message");
+                //displayStartButton();
             }
         })
 
@@ -37,16 +40,44 @@ console.log("i am loaded")
     .catch(console.error)
 }
 
-// Small update required: close the ready button (code might be available on the mac):
+document.addEventListener('DOMContentLoaded', (event) => {
+    // Your code here will run once the DOM is fully loaded
+    displayStartButton();
+});
+
+
+function displayStartButton() {
+    if (document.getElementById("agePanelContainer")) { document.getElementById("agePanelContainer").innerHTML = ''; }
+    if (document.getElementById("readyButton")) { document.getElementById("readyButtonContainer").innerHTML = ''; }
+    document.getElementById('videoContainer').innerHTML = '';
+    document.getElementById('chatContainer').innerHTML = '';
+
+
+    const startButton = document.createElement('button');
+    startButton.id = 'startButton';
+    startButton.innerText = 'Start!';
+    document.getElementById('flowButtonContainer').append(startButton);
+    //document.innerHTML = startButton;
+
+    startButton.addEventListener('click', () =>
+        furhat.send({
+            event_name: "ClickButton",
+            data: 'startButton'
+        }));
+}
+
+
+
 function displayVideoMode(input) {
     //if(input.)
     document.getElementById('chatContainer').innerHTML = '';
     document.getElementById('videoContainer').innerHTML = '';
-    if (document.getElementById("agePanelContainer")) {document.getElementById("agePanelContainer").innerHTML = '';}
-    if (document.getElementById("readyButton")) {document.getElementById("readyButtonContainer").innerHTML = '';}
+    if (document.getElementById("agePanelContainer")) { document.getElementById("agePanelContainer").innerHTML = ''; }
+    if (document.getElementById("readyButton")) { document.getElementById("readyButtonContainer").innerHTML = ''; }
+    if (document.getElementById("flowButtonContainer")) { document.getElementById("flowButtonContainer").innerHTML = ''; }
 
     // Create a new video element
-    if (document.getElementById("vid")) {document.getElementById("vid").outerHTML = ''; console.log("old vid removed")}
+    if (document.getElementById("vid")) { document.getElementById("vid").outerHTML = ''; console.log("old vid removed") }
     const video = document.createElement('video');
 
     // Set the video's source
@@ -66,10 +97,9 @@ function displayVideoMode(input) {
 }
 
 function displayChatReactMode(input) {
+    if (document.getElementById("flowButtonContainer")) { document.getElementById("flowButtonContainer").innerHTML = ''; }
     document.getElementById('videoContainer').innerHTML = '';
-    //document.getElementById('videoContainer').outerHTML = '';
-    //document.getElementById('chatContainer').innerHTML = '';
-    if(!document.getElementById('chatContainer')){document}
+    if (!document.getElementById('chatContainer')) { document }
     console.log("ran displaychatreactmode");
     reactions = {};
     addMessagesToDOM(input)
@@ -180,7 +210,7 @@ function openEmojiPicker(messageId) {//, existingReaction = '') {
     // Apply blur to other elements
     const allMessages = document.querySelectorAll('.otherBubble, .ownBubble, .inlineIcon, .inlineContainer.own, .readyButton');
     allMessages.forEach(message => {
-        if (message.id != "" && message.id != messageId ) {
+        if (message.id != "" && message.id != messageId) {
             message.classList.add('blur');
         }
     });
@@ -224,7 +254,7 @@ function openEmojiPicker(messageId) {//, existingReaction = '') {
     }
 
     if (!reactions[messageId]) {
-        reactions[messageId] = { reaction:'' };
+        reactions[messageId] = { reaction: '' };
     }
 
     const existingReaction = reactions[messageId].reaction;
@@ -428,6 +458,7 @@ function displayAgePanel() {
             agePanelVisible = false;
             agePanelContainer.innerHTML = '';
             exportReactions();
+
         } else {
             // Invalid age, show an error message (you can customize this)
             console.log('invalid age');
@@ -443,9 +474,8 @@ function displayAgePanel() {
     });
 }
 
-
 function exportReactions() {
-    console.log("Confirm pressed",age);
+    console.log("Confirm pressed", age);
     const jsonReactions = JSON.stringify({
         reactions: reactions,
         age: age // Include the age in the data
@@ -458,9 +488,8 @@ function exportReactions() {
         data: jsonReactions
     })
     console.log(jsonReactions);
+    displayStartButton();
 }
-
-
 
 
 // toggle the blur class on the body

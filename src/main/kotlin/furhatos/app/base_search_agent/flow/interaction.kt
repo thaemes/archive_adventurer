@@ -55,8 +55,13 @@ val GUIConnected = state(NoGUI) {
     }
 
     onEvent(CLICK_BUTTON) {
-        println("Rec'd annotated logs at furhat side: " + it.get("data"))
-        writeAnnotatedLog(it.get("data").toString())
+        if (it.get("data").toString().contains("startButton")) {
+            println("Button Event contained: ${it.get("data").toString()} ")
+             goto(conversationalSimplified())
+        } else {
+            println("Rec'd annotated logs at furhat side: " + it.get("data"))
+            writeAnnotatedLog(it.get("data").toString())
+        }
     }
 }
 

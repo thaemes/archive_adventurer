@@ -11,10 +11,10 @@ const val useSerial  = false
 
 
 // New Matching server
-const val MATCHING_SERVER_IP = "10.150.26.35"//"10.150.24.71"//"10.150.24.206"//"10.150.25.1"//"10.150.24.119" //"127.0.0.1" //"10.150.24.170"//"10.150.24.129"
+const val MATCHING_SERVER_IP = "localhost"//"10.150.24.71"//"10.150.24.206"//"10.150.25.1"//"10.150.24.119" //"127.0.0.1" //"10.150.24.170"//"10.150.24.129"
 const val MATCHING_SERVER_PORT = 12223
 
-const val RANKING_SERVER_IP = "10.150.26.35"
+const val RANKING_SERVER_IP = "localhost"
 const val RANKING_SERVER_PORT = 12224
 
 // Serial comms

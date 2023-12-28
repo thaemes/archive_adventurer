@@ -19,8 +19,7 @@ OVERAL waar video, List<Video>
 
 var state = StateTracker()
 const val suggestThreshold = 1
-const val resultThreshold = 4
-
+const val resultThreshold = 2
 
 
 fun conversationalSimplified(): State = state(Init) {
@@ -101,12 +100,12 @@ fun simpleSuggest(): State = state(Init) {
             goto(simpleResult())
         }
 
-        println("    Suggestion List before ranking: ${state.suggestionPossibilities.map{it.label}}")
+        println("    Suggestion List before ranking (${state.suggestionPossibilities.size}): ${state.suggestionPossibilities.map{it.label}}")
         if(useRanking) {
             call(retrieveSuggestionKeywords())
             state.updatePreferredSuggestions()
         }
-        println("    Suggestion List after ranking: ${state.suggestionPossibilities.map{it.label}}")
+        println("    Suggestion List after ranking(${state.suggestionPossibilities.size}): ${state.suggestionPossibilities.map{it.label}}")
         var suggestionKeywords = state.suggestionPossibilities
         suggestionKeywords.removeAll(state.suggestedBefore)
         suggestionKeywords = suggestionKeywords.take(3).toMutableList()

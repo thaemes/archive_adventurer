@@ -90,8 +90,41 @@ class Nee : Intent() {
             "nee", "niet", "nah", "neen", "nope"
         )
     }
-
 }
+
+class Repeat : Intent() {
+    override fun getExamples(lang: Language) : List<String> {
+        return listOf(
+            "herhalen",
+            "kun je dat herhalen",
+            "wat zei je?",
+            "nog een keer zeggen",
+            "kun je dat nog een keer zeggen",
+            "wablief"
+        )
+    }
+}
+
+class Ja : Intent() {
+    override fun getExamples(Lang: Language): List<String> {
+        return listOf(
+            "ja",
+            "jawoor",
+            "jahoor",
+            "ja hoor",
+            "jawel",
+            "jazeker",
+            "yeah",
+            "is goed",
+            "goed",
+            "prima",
+            "perfect",
+            "natuurlijk",
+            "yep"
+        )
+    }
+}
+
 
 class provideOptions() : ComplexEnumEntity() {
     override fun getEnum(lang:Language): List<String>{
@@ -137,26 +170,6 @@ class Number : EnumEntity() {
     }
 }
 
-
-class Ja : Intent() {
-    override fun getExamples(Lang: Language): List<String> {
-        return listOf(
-            "ja",
-            "jawoor",
-            "jahoor",
-            "ja hoor",
-            "jawel",
-            "jazeker",
-            "yeah",
-            "is goed",
-            "goed",
-            "prima",
-            "perfect",
-            "natuurlijk",
-            "yep"
-        )
-    }
-}
 
 
 class WakeWord : Intent() {

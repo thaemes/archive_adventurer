@@ -2,6 +2,7 @@ package furhatos.app.base_search_agent.flow
 
 import RankingServer
 import furhatos.app.base_search_agent.*
+import furhatos.app.base_search_agent.nlu.Repeat
 import furhatos.app.base_search_agent.nlu.ThesaurusKeyword
 import furhatos.event.senses.SenseSkillGUIConnected
 import furhatos.flow.kotlin.*
@@ -9,11 +10,9 @@ import furhatos.flow.kotlin.voice.Voice
 import furhatos.skills.HostedGUI
 import furhatos.util.Gender
 import furhatos.util.Language
-import org.json.JSONArray
-import org.json.JSONObject
+import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
-import java.io.BufferedWriter
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -57,13 +56,11 @@ val GUIConnected = state(NoGUI) {
     onEvent(CLICK_BUTTON) {
         if (it.get("data").toString().contains("startButton")) {
             println("Button Event contained: ${it.get("data").toString()} ")
-             goto(conversationalSimplified())
-        }
-        else if(it.get("data").toString().contains("vidDoneButton")) {
+            goto(conversationalSimplified())
+        } else if (it.get("data").toString().contains("vidDoneButton")) {
             println("Participant was done watching")
             send(DataDelivery(buttons = null, inputFields = null, messagesLog = listOf(cl.getLog()), videoUrl = null))
-        }
-        else {
+        } else {
             println("Rec'd annotated logs at furhat side: " + it.get("data"))
             writeAnnotatedLog(it.get("data").toString())
             call(cl.reset())
@@ -71,7 +68,7 @@ val GUIConnected = state(NoGUI) {
             dialogLogger.endSession()
             dialogLogger.startSession()
             flushMatchServer()
-            if(useRanking) rankingServ.flush()
+            if (useRanking) rankingServ.flush()
         }
     }
 }
@@ -93,6 +90,16 @@ val Init: State = state(GUIConnected) {
         dialogLogger.startSession()
     }
 
+
+    onResponse<Repeat> {
+        println("Stub for repeating")
+        if (state.lastSaid == "") {
+            call(cl.customSay("ik ben vergeten wat ik zei"))
+        } else {
+            call(cl.customSay("Ik zei: "))
+            call(cl.customSay(state.lastSaid))
+        }
+    }
 
 //    onUserEnter {
 //        furhat.attend(it)
@@ -117,20 +124,8 @@ val Init: State = state(GUIConnected) {
         furhat.setInputLanguage(Language.DUTCH)
     }
 
-//    onButton("Start snappy") {
-//        goto(conversationalPromptSnap())
-//    }
-
-//    onButton("blank face") {
-
-//    }
-
     onButton("Skip next utterance") {
         furhat.say("", abort = true)
-    }
-
-    onButton("Stop attending") {
-        furhat.attendNobody()
     }
 
     onButton("Reset current set conversational", color = Color.Green) {
@@ -140,7 +135,7 @@ val Init: State = state(GUIConnected) {
         dialogLogger.endSession()
         dialogLogger.startSession()
         flushMatchServer()
-        if(useRanking) rankingServ.flush()
+        if (useRanking) rankingServ.flush()
     }
 
     onButton("Start logger", color = Color.Yellow) {
@@ -153,7 +148,6 @@ val Init: State = state(GUIConnected) {
 
     onButton("Connect matching server") {
         call(connectMatchServ())
-        //call(extractMatchServ("tijger"))
     }
 
     onButton("Test matching server") {

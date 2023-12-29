@@ -21,7 +21,8 @@ class StateTracker {
     var suggestedBefore: MutableList<ThesaurusKeyword> = mutableListOf()
     var suggestedLastTurn: MutableList<ThesaurusKeyword> = mutableListOf()
     var suggestionPossibilities: MutableList<ThesaurusKeyword> = mutableListOf()
-    //var potentialSuggestionsNeedFlush = false
+
+    lateinit var lastSaid : String
 
     fun addKeyword(inputKw: ThesaurusKeyword) {
         if (!keywordsCurrent.contains(inputKw)) {

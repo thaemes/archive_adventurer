@@ -1,6 +1,7 @@
 package furhatos.app.base_search_agent
 
 import furhatos.app.base_search_agent.flow.Init
+import furhatos.app.base_search_agent.flow.state
 import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.*
 import org.json.JSONArray
@@ -24,6 +25,7 @@ class CustomLogger {
     fun customSay(text: String): State = state(Init) {
         onEntry {
             call(addLog("robot", text))
+            state.lastSaid = text
             furhat.say(text)
             terminate()
         }
@@ -32,6 +34,7 @@ class CustomLogger {
     fun customListen(prompt: String): State = state(Init) {
         onEntry {
             call(addLog(who = "robot", prompt))
+            state.lastSaid = prompt
             furhat.listen()
             terminate()
         }
@@ -40,24 +43,11 @@ class CustomLogger {
     fun customAsk(prompt: String): State = state(Init) {
         onEntry {
             call(addLog(who = "robot", text = prompt))
+            state.lastSaid = prompt
             furhat.ask(prompt)
         }
-//        onResponse{
-//            println("got any resp")
-//            terminate(it)
-//        }
     }
 
-
-//    fun customAskRand(prompt: String, prompt2: String): State = state(Init) {
-//        onEntry {
-//            val toSay = random(
-//                {prompt}, {prompt2}
-//            )
-//            call(addLog(who = "robot", text = prompt))
-//            furhat.ask(prompt)
-//        }
-//    }
 
     fun customResponse(text: String): State = state(Init) {
         onEntry {
